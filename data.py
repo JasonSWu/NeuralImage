@@ -21,7 +21,7 @@ def process_data(dataset, tokenizer):
         uids = entry['uid']
         tokenized = [tokenizer(sentence, return_tensors="pt") for sentence in dialogue]
         for i in range(len(tokenized) - 1):
-            print(tokenized[i].size())
+            print(tokenized[i]['input_ids'].size())
             out.append((tokenized[i], tokenized[i + 1]['input_ids']))
         j += 1
     return out
