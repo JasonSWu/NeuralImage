@@ -19,3 +19,13 @@ class ChatBot(nn.Module):
                 response_logits = self.response_decoder(tgt = torch.Tensor(out_seq, device="cuda"), memory = encoded_input)
                 token_id = torch.argmax(response_logits)
             return response_logits
+        
+class MyDecoder(nn.Module):
+    def __init__(self, decoder, hidden_size, vocab_size):
+        super(MyDecoder, self).__init__()
+        self.decoder = decoder
+        self.linear = nn.Linear(hidden_size, vocab_size)
+        self.softmax = nn.Softmax(dim=-1)
+    
+    def forward(self, tgt, memory, tgt_mask):
+        return self.softmax(self.linear(self.decoder(tgt, memory, tgt_mask=tgt_mask)))
