@@ -17,8 +17,8 @@ def upper_tri_mask(n):
 def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, device="cuda"):
   base_llm = base_llm.to(device)
   decoder = decoder.to(device)
-  optimizer = torch.optim.RMSprop(decoder.parameters(), lr=0.005,alpha=0.95).to(device)
-  loss_fn = torch.nn.CrossEntropyLoss(ignore_index=PAD_IDX).to(device) #Ignore padding, dont let it contribute to training
+  optimizer = torch.optim.RMSprop(decoder.parameters(), lr=0.005,alpha=0.95)
+  loss_fn = torch.nn.CrossEntropyLoss(ignore_index=PAD_IDX) #Ignore padding, dont let it contribute to training
   embed_fn = base_llm.get_input_embeddings()
 
   for epoch in range(1, num_epochs+1):
