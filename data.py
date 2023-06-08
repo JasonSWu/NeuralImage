@@ -1,6 +1,7 @@
 from datasets import load_dataset, Dataset
 from transformers import AutoTokenizer
 import torch
+import tqdm
 
 data = load_dataset('silver/personal_dialog')
 train = data['train']
@@ -11,7 +12,7 @@ def process_data(dataset, tokenizer):
     profiles = None
     uids = None
     out = []
-    for entry in dataset:
+    for entry in tqdm(dataset):
         dialogue = entry['dialog']
         profiles = entry['profile']
         uids = entry['uid']
