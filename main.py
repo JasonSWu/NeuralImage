@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-import tqdm
+from tqdm import tqdm
 from datasets import load_dataset
 from transformers import AutoConfig, AutoTokenizer, AutoModelForCausalLM
 from model import ChatBot

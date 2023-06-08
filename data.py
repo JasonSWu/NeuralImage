@@ -1,7 +1,7 @@
 from datasets import load_dataset, Dataset
 from transformers import AutoTokenizer
 import torch
-import tqdm
+from tqdm import tqdm
 
 data = load_dataset('silver/personal_dialog')
 train = data['train']
