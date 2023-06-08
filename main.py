@@ -29,12 +29,11 @@ def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, device="cuda
         #src and tgt should have token IDs, not actual words
         src, tgt = src.to(device), tgt.to(device)
         encoded_input = base_llm(**src)
-        print(encoded_input.logits.size())
         memory = encoded_input.logits #Not the memory that we are looking to implement
         #Working with tgt.size() = (batch, seq, embed_size)
         truth = tgt[1:]
         tgt = tgt[:-1]
-        mask = decoder.generate_square_subsequent_mask(len(tgt))
+        mask = nn.Transformer.generate_square_subsequent_mask(len(tgt))
 
         probabilities = decoder(embed_fn(tgt), memory, tgt_mask = mask)
 
