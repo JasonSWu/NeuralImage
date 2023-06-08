@@ -33,7 +33,7 @@ def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, device="cuda
         #Working with tgt.size() = (batch, seq, embed_size)
         truth = tgt[:, 1:]
         tgt = tgt[:, :-1]
-        mask = nn.Transformer.generate_square_subsequent_mask(len(tgt))
+        mask = nn.Transformer.generate_square_subsequent_mask(tgt.size()[1])
 
         probabilities = decoder(embed_fn(tgt), memory, tgt_mask = mask)
 
