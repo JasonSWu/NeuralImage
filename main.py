@@ -15,10 +15,10 @@ def upper_tri_mask(n):
     return torch.transpose(torch.tril(torch.ones((n,n)), diagonal=-1), 0, 1) #1's represent masking
 
 def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, device="cuda"):
-  base_llm.to(device)
-  decoder.to(device)
-  optimizer = torch.optim.RMSprop(decoder.parameters(), lr=0.005,alpha=0.95)
-  loss_fn = torch.nn.CrossEntropyLoss(ignore_index=PAD_IDX) #Ignore padding, dont let it contribute to training
+  base_llm = base_llm.to(device)
+  decoder = decoder.to(device)
+  optimizer = torch.optim.RMSprop(decoder.parameters(), lr=0.005,alpha=0.95).to(device)
+  loss_fn = torch.nn.CrossEntropyLoss(ignore_index=PAD_IDX).to(device) #Ignore padding, dont let it contribute to training
   embed_fn = base_llm.get_input_embeddings()
 
   for epoch in range(1, num_epochs+1):
@@ -33,7 +33,7 @@ def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, device="cuda
         #Working with tgt.size() = (batch, seq, embed_size)
         truth = tgt[:, 1:]
         tgt = tgt[:, :-1]
-        mask = nn.Transformer.generate_square_subsequent_mask(tgt.size()[1])
+        mask = nn.Transformer.generate_square_subsequent_mask(tgt.size()[1]).to(device)
 
         probabilities = decoder(embed_fn(tgt), memory, tgt_mask = mask)
 
