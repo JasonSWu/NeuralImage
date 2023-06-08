@@ -8,13 +8,12 @@ val = data['validation']
 test = data['test']
 def process_data(dataset, tokenizer):
     dialogue = None
-    profile0 = None
-    profile1 = None
+    profiles = None
     uids = None
     out = []
     for entry in dataset:
         dialogue = entry['dialog']
-        profile0, profile1 = entry['profile']
+        profiles = entry['profile']
         uids = entry['uid']
         tokenized = [tokenizer(sentence, return_tensors="pt") for sentence in dialogue]
         for i in range(len(tokenized) - 1):

@@ -15,6 +15,8 @@ def upper_tri_mask(n):
     return torch.transpose(torch.tril(torch.ones((n,n)), diagonal=-1), 0, 1) #1's represent masking
 
 def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, device="cuda"):
+  base_llm.to(device)
+  decoder.to(device)
   optimizer = torch.optim.RMSprop(decoder.parameters(), lr=0.005,alpha=0.95)
   loss_fn = torch.nn.CrossEntropyLoss(ignore_index=PAD_IDX) #Ignore padding, dont let it contribute to training
   embed_fn = base_llm.get_input_embeddings()
@@ -52,7 +54,7 @@ device = torch.device("cuda")
 
 config = AutoConfig.from_pretrained("xlm-roberta-base")
 tokenizer = AutoTokenizer.from_pretrained("xlm-roberta-base")
-pretrained_model = AutoModelForCausalLM.from_pretrained("xlm-roberta-base").to(device)
+pretrained_model = AutoModelForCausalLM.from_pretrained("xlm-roberta-base")
 hidden_size = config.hidden_size
 vocab_size = config.vocab_size
 
