@@ -12,7 +12,7 @@ def process_data(dataset, tokenizer):
     profiles = None
     uids = None
     out = []
-    for entry in tqdm(dataset):
+    for entry in tqdm(dataset[:5000]):
         dialogue = entry['dialog']
         profiles = entry['profile']
         uids = entry['uid']
