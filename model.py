@@ -20,16 +20,14 @@ class ChatBot(nn.Module):
         with torch.no_grad():
             outputs = self.llm(input_ids=input_ids, attention_mask=attention_mask)
             encoded_input = outputs.last_hidden_state
-            print(encoded_input.size())
             out_seq = [[self.bos]]
-            while out_seq[-1] != self.eos:
+            while out_seq[0][-1] != self.eos:
                 tgt = self.embed(torch.tensor(out_seq, dtype=torch.long, device=self.device).to(self.device))
                 mask = nn.Transformer.generate_square_subsequent_mask(tgt.size()[1]).to(self.device)
                 response_logits = self.decoder(tgt, memory = encoded_input, tgt_mask = mask)
                 token_id = torch.argmax(response_logits[:, -1, :], dim=-1)
-                print(self.tokenizer.convert_ids_to_tokens(token_id))
                 out_seq[0].append(token_id.item())
-            return response_logits
+            return out_seq
         
 class MyDecoder(nn.Module):
     def __init__(self, decoder, hidden_size, vocab_size):
