@@ -10,6 +10,7 @@ class ChatBot(nn.Module):
         self.bos = bos_token_id
         self.eos = eos_token_id
         self.device = device
+        self.embed = pretrained_model.get_input_embeddings()
 
     def forward(self, input_ids, attention_mask):
         input_ids = input_ids.to(self.device)
@@ -17,9 +18,10 @@ class ChatBot(nn.Module):
         with torch.no_grad():
             outputs = self.llm(input_ids=input_ids, attention_mask=attention_mask)
             encoded_input = outputs.last_hidden_state
+            print(encoded_input.size())
             out_seq = [[self.bos]]
             while out_seq[-1] != self.eos:
-                tgt = torch.Tensor(out_seq).to(self.device)
+                tgt = self.embed(torch.Tensor(out_seq).to(self.device))
                 mask = nn.Transformer.generate_square_subsequent_mask(tgt.size()[0]).to(self.device)
                 response_logits = self.decoder(tgt, memory = encoded_input, tgt_mask = mask)
                 token_id = torch.argmax(response_logits[:, -1, :], dim=-1)
