@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from tqdm import tqdm
 from datasets import load_dataset
-from transformers import AutoConfig, AutoTokenizer, AutoModelForCausalLM, XLMRobertaModel
+from transformers import AutoConfig, XLMRobertaTokenizer, XLMRobertaModel
 from model import ChatBot, MyDecoder
 from data import process_data
 
@@ -17,7 +17,7 @@ def upper_tri_mask(n):
 def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, device="cuda"):
   base_llm = base_llm.to(device)
   decoder = decoder.to(device)
-  optimizer = torch.optim.RMSprop(decoder.parameters(), lr=0.005,alpha=0.95)
+  optimizer = torch.optim.RMSprop(decoder.parameters(), lr=0.001,alpha=0.95)
   loss_fn = torch.nn.CrossEntropyLoss(ignore_index=PAD_IDX) #Ignore padding, dont let it contribute to training
   embed_fn = base_llm.get_input_embeddings()
 
@@ -54,10 +54,11 @@ def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, device="cuda
 device = torch.device("cuda")
 
 config = AutoConfig.from_pretrained("xlm-roberta-base")
-tokenizer = AutoTokenizer.from_pretrained("xlm-roberta-base")
+tokenizer = XLMRobertaTokenizer.from_pretrained("xlm-roberta-base")
 pretrained_model = XLMRobertaModel.from_pretrained("xlm-roberta-base", is_decoder=False)
 pretrained_model.eval()
-pretrained_model.requires_grad = False
+for param in pretrained_model.parameters():
+    param.requires_grad = False
 hidden_size = config.hidden_size
 vocab_size = config.vocab_size
 
