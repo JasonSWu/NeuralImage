@@ -21,7 +21,7 @@ class ChatBot(nn.Module):
             print(encoded_input.size())
             out_seq = [[self.bos]]
             while out_seq[-1] != self.eos:
-                tgt = self.embed(torch.Tensor(out_seq).to(self.device))
+                tgt = self.embed(torch.Tensor(out_seq, dtype = torch.Long).to(self.device))
                 mask = nn.Transformer.generate_square_subsequent_mask(tgt.size()[0]).to(self.device)
                 response_logits = self.decoder(tgt, memory = encoded_input, tgt_mask = mask)
                 token_id = torch.argmax(response_logits[:, -1, :], dim=-1)
