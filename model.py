@@ -11,6 +11,8 @@ class ChatBot(nn.Module):
         self.eos = eos_token_id
         self.device = device
         self.embed = pretrained_model.get_input_embeddings()
+        print(self.eos)
+        print(self.bos)
 
     def forward(self, input_ids, attention_mask):
         input_ids = input_ids.to(self.device)
