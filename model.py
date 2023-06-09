@@ -19,7 +19,7 @@ class ChatBot(nn.Module):
             encoded_input = outputs.last_hidden_state
             out_seq = [self.bos]
             while out_seq[-1] != self.eos:
-                response_logits = self.decoder(tgt = torch.Tensor(out_seq, device=self.device), memory = encoded_input)
+                response_logits = self.decoder(tgt = torch.Tensor(out_seq).to(self.device), memory = encoded_input)
                 token_id = torch.argmax(response_logits[:, -1, :], dim=-1)
                 out_seq.append(token_id.item())
             return response_logits
