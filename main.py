@@ -54,7 +54,7 @@ def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, device="cuda
 device = torch.device("cuda")
 
 config = AutoConfig.from_pretrained("xlm-roberta-base")
-tokenizer = XLMRobertaTokenizer.from_pretrained("xlm-roberta-base")
+tokenizer = AutoTokenizer.from_pretrained("xlm-roberta-base")
 pretrained_model = XLMRobertaModel.from_pretrained("xlm-roberta-base", is_decoder=False)
 pretrained_model.eval()
 for param in pretrained_model.parameters():
