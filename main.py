@@ -58,7 +58,7 @@ device = torch.device("cuda")
 
 config = AutoConfig.from_pretrained("xlm-roberta-base")
 tokenizer = AutoTokenizer.from_pretrained("xlm-roberta-base")
-pretrained_model = AutoModelForCausalLM.from_pretrained("xlm-roberta-base")
+pretrained_model = AutoModelForCausalLM.from_pretrained("xlm-roberta-base", is_decoder=False)
 hidden_size = config.hidden_size
 vocab_size = config.vocab_size
 
