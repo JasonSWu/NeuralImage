@@ -27,6 +27,7 @@ class ChatBot(nn.Module):
                 response_logits = self.decoder(tgt, memory = encoded_input, tgt_mask = mask)
                 print(response_logits.size())
                 token_id = torch.argmax(response_logits[:, -1, :], dim=-1)
+                print("---------------------------------")
                 out_seq[0].append(token_id.item())
             return out_seq
         
