@@ -28,8 +28,8 @@ def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, device="cuda
     for src, tgt in tqdm(train_dataloader):
         #src and tgt should have token IDs, not actual words
         src, tgt = src.to(device), tgt.to(device)
-        print(src)
         encoded_input = base_llm(**src)
+        print(encoded_input)
         memory = encoded_input.logits #Not the memory that we are looking to implement
         #Working with tgt.size() = (batch, seq, embed_size)
         truth = tgt[:, 1:]
