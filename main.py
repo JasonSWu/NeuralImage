@@ -37,6 +37,8 @@ def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, device="cuda
 
         embedded_tgt = embed_fn(tgt)
         print(embedded_tgt.size())
+        print(memory.size())
+        print(mask.size())
         probabilities = decoder(embedded_tgt, memory, tgt_mask = mask)
 
         optimizer.zero_grad()
