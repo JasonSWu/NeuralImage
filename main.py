@@ -29,7 +29,7 @@ def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, device="cuda
         #src and tgt should have token IDs, not actual words
         src, tgt = src.to(device), tgt.to(device)
         encoded_input = base_llm(**src)
-        memory = encoded_input.last_hidden_state #Not the memory that we are looking to implement
+        memory = encoded_input.pooler_output #Not the memory that we are looking to implement
         #Working with tgt.size() = (batch, seq, embed_size)
         truth = tgt[:, 1:]
         tgt = tgt[:, :-1]
@@ -67,7 +67,7 @@ train_data = process_data(data['train'], tokenizer)
 decoder_layer = nn.TransformerDecoderLayer(d_model=hidden_size, nhead=8, batch_first=True)
 norm_layer = nn.LayerNorm(hidden_size)
 decoder = MyDecoder(nn.TransformerDecoder(decoder_layer, num_layers = 4, norm = norm_layer), hidden_size, vocab_size)
-decoder = train(pretrained_model, decoder, train_data, 10, config.pad_token_id, device)
+decoder = train(pretrained_model, decoder, train_data, 50, config.pad_token_id, device)
 chatbot = ChatBot(pretrained_model, decoder, tokenizer, config.bos_token_id, config.eos_token_id, device)
 example1 = "谢谢你付我的饭钱!"
 example2 = "你好"
