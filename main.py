@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 from tqdm import tqdm
 from datasets import load_dataset
-from transformers import AutoConfig, XLMRobertaTokenizer, XLMRobertaModel
+from transformers import AutoConfig, AutoTokenizer, XLMRobertaModel
 from model import ChatBot, MyDecoder
 from data import process_data
 
