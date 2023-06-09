@@ -14,7 +14,7 @@ def process_data(dataset, tokenizer):
     out = []
     j = 0
     for entry in tqdm(dataset):
-        if j > 10000:
+        if j > 1000:
             break
         dialogue = entry['dialog']
         profiles = entry['profile']
