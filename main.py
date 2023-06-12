@@ -66,7 +66,7 @@ train_data = process_data(data['train'], tokenizer)
 decoder_layer = nn.TransformerDecoderLayer(d_model=hidden_size, nhead=8, batch_first=True)
 norm_layer = nn.LayerNorm(hidden_size)
 decoder = MyDecoder(nn.TransformerDecoder(decoder_layer, num_layers = 4, norm = norm_layer), hidden_size, vocab_size)
-decoder = train(pretrained_model, decoder, train_data, 50, config.pad_token_id, device)
+decoder = train(pretrained_model, decoder, train_data, 1, config.pad_token_id, device)
 chatbot = ChatBot(pretrained_model, decoder, tokenizer, config.bos_token_id, config.eos_token_id, device)
 example1 = "谢谢你付我的饭钱!"
 example2 = "你好"
