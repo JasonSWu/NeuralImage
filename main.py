@@ -37,12 +37,11 @@ def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, device="cuda
 
         embedded_tgt = embed_fn(tgt)
         probabilities = decoder(embedded_tgt, memory, tgt_mask = mask)
-
+        print(torch.argmax(probabilities, dim=-1))
         optimizer.zero_grad()
         
         loss = loss_fn(torch.transpose(probabilities, 1, 2), truth) #need (batches, classes, seq). Before transpose, is (bathces, seq, classes)
-        print(loss.values)
-        print(type(loss))
+        print(loss.item())
         input()
         loss.backward()
         #torch.nn.utils.clip_grad_value_(model.parameters(), 5.0)
