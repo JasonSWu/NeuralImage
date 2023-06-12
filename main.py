@@ -32,10 +32,7 @@ def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, device="cuda
         memory = encoded_input.last_hidden_state #Not the memory that we are looking to implement
         #Working with tgt.size() = (batch, seq, embed_size)
         truth = tgt[:, 1:]
-        print(truth)
         tgt = tgt[:, :-1]
-        print(tgt)
-        input()
         mask = nn.Transformer.generate_square_subsequent_mask(tgt.size()[1]).to(device)
 
         embedded_tgt = embed_fn(tgt)
@@ -44,6 +41,8 @@ def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, device="cuda
         optimizer.zero_grad()
         
         loss = loss_fn(torch.transpose(probabilities, 1, 2), truth) #need (batches, classes, seq). Before transpose, is (bathces, seq, classes)
+        print(loss.__dir__())
+        input()
         loss.backward()
         #torch.nn.utils.clip_grad_value_(model.parameters(), 5.0)
 
