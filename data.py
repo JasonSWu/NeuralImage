@@ -22,7 +22,5 @@ def process_data(dataset, tokenizer):
         tokenized = [tokenizer(sentence.replace(" ", ""), return_tensors="pt") for sentence in dialogue]
         for i in range(len(tokenized) - 1):
             out.append((tokenized[i], tokenized[i + 1]['input_ids']))
-        if j < 10:
-            print(dialogue[0], tokenized[0])
         j += 1
     return out
