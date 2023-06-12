@@ -18,7 +18,7 @@ def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, device="cuda
   base_llm = base_llm.to(device)
   decoder = decoder.to(device)
   optimizer = torch.optim.RMSprop(decoder.parameters(), lr=0.1,alpha=0.95)
-  loss_fn = torch.nn.CrossEntropyLoss(ignore_index=PAD_IDX) #Ignore padding, dont let it contribute to training
+  loss_fn = torch.nn.CrossEntropyLoss(ignore_index=6) #Ignore padding, dont let it contribute to training
   embed_fn = base_llm.get_input_embeddings()
 
   for epoch in range(1, num_epochs+1):
