@@ -29,7 +29,7 @@ def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, device="cuda
         #src and tgt should have token IDs, not actual words
         src, tgt = src.to(device), tgt.to(device)
         encoded_input = base_llm(**src)
-        memory = encoded_input.pooler_output #Not the memory that we are looking to implement
+        memory = encoded_input.last_hidden_state #Not the memory that we are looking to implement
         #Working with tgt.size() = (batch, seq, embed_size)
         truth = tgt[:, 1:]
         tgt = tgt[:, :-1]
@@ -57,8 +57,7 @@ config = AutoConfig.from_pretrained("xlm-roberta-base")
 tokenizer = AutoTokenizer.from_pretrained("xlm-roberta-base")
 pretrained_model = XLMRobertaModel.from_pretrained("xlm-roberta-base", is_decoder=False)
 pretrained_model.eval()
-for param in pretrained_model.parameters():
-    param.requires_grad = False
+pretrained_model.requires_grad_(False)
 hidden_size = config.hidden_size
 vocab_size = config.vocab_size
 

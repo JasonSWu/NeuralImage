@@ -17,7 +17,7 @@ class ChatBot(nn.Module):
         attention_mask = attention_mask.to(self.device)
         with torch.no_grad():
             outputs = self.llm(input_ids=input_ids, attention_mask=attention_mask)
-            encoded_input = outputs.pooler_output
+            encoded_input = outputs.last_hidden_state
             out_seq = [[self.bos]]
             while out_seq[0][-1] != self.eos:
                 tgt = self.embed(torch.tensor(out_seq, dtype=torch.long, device=self.device))
