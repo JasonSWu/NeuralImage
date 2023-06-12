@@ -3,18 +3,14 @@ from transformers import AutoTokenizer
 import torch
 from tqdm import tqdm
 
-data = load_dataset('silver/personal_dialog')
-train = data['train']
-val = data['validation']
-test = data['test']
-def process_data(dataset, tokenizer):
+def process_data(dataset, tokenizer, n):
     dialogue = None
     profiles = None
     uids = None
     out = []
     j = 0
     for entry in tqdm(dataset):
-        if j > 100:
+        if j > n:
             break
         dialogue = entry['dialog']
         profiles = entry['profile']

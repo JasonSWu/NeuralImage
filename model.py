@@ -36,7 +36,6 @@ class MyDecoder(nn.Module):
         super(MyDecoder, self).__init__()
         self.decoder = decoder
         self.linear = nn.Linear(hidden_size, vocab_size)
-        self.softmax = nn.Softmax(dim=-1)
     
     def forward(self, tgt, memory, tgt_mask):
-        return self.softmax(self.linear(self.decoder(tgt, memory, tgt_mask=tgt_mask)))
+        return self.linear(self.decoder(tgt, memory, tgt_mask=tgt_mask))
