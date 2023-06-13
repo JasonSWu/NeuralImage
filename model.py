@@ -22,7 +22,7 @@ class ChatBot(nn.Module):
             while out_seq[0][-1] != self.eos:
                 tgt = self.embed(torch.tensor(out_seq, dtype=torch.long, device=self.device))
                 #print(tgt.size())
-                mask = nn.Transformer.generate_square_subsequent_mask(tgt.size()[1]).to(self.device)
+                mask = nn.Transformer.generate_square_subsequent_mask(tgt.size()[1]).bool().to(self.device)
                 #print(mask.size())
                 response_logits = self.decoder(tgt, memory = encoded_input, tgt_mask = mask)
                 #print(response_logits.size())
