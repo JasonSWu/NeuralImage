@@ -9,7 +9,7 @@ from data import process_data
 def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, device="cuda"):
   base_llm = base_llm.to(device)
   decoder = decoder.to(device)
-  optimizer = torch.optim.SGD(decoder.parameters(), lr=0.01)
+  optimizer = torch.optim.SGD(decoder.parameters(), lr=0.03)
   loss_fn = torch.nn.CrossEntropyLoss(ignore_index=PAD_IDX) #Ignore padding, dont let it contribute to training
   embed_fn = base_llm.get_input_embeddings()
 
