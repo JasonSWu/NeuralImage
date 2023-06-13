@@ -7,6 +7,9 @@ from model import ChatBot, MyDecoder
 from data import process_data
 import os
 
+def upper_tri_mask(n):
+  return torch.triu(torch.ones((n,n)), diagonal=1)
+
 def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, device="cuda"):
   base_llm = base_llm.to(device)
   decoder = decoder.to(device)
@@ -27,7 +30,7 @@ def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, device="cuda
         #Working with tgt.size() = (batch, seq, embed_size)
         truth = tgt[:, 1:]
         tgt = tgt[:, :-1]
-        mask = nn.Transformer.generate_square_subsequent_mask(tgt.size()[1]).to(device)
+        mask = upper_tri_mask(tgt.size()[1]).to(device)
         print(mask)
 
         embedded_tgt = embed_fn(tgt)
