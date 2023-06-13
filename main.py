@@ -5,6 +5,7 @@ from datasets import load_dataset
 from transformers import AutoConfig, AutoTokenizer, XLMRobertaModel
 from model import ChatBot, MyDecoder
 from data import process_data
+import os
 
 def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, device="cuda"):
   base_llm = base_llm.to(device)
@@ -63,4 +64,5 @@ example1 = "谢谢你付我的饭钱!"
 example2 = "你好"
 print(tokenizer.decode(chatbot.forward(**tokenizer(example1, return_tensors="pt"))[0]))
 print(tokenizer.decode(chatbot.forward(**tokenizer(example2, return_tensors="pt"))[0]))
-torch.save(chatbot.state_dict(), "mymodel")
+torch.save(chatbot.state_dict(), "chatbot")
+torch.save(decoder.state_dict(), "decoder")
