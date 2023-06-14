@@ -61,7 +61,7 @@ eos = 102
 
 data = load_dataset('silver/personal_dialog')
 train_data = process_data(data['train'], tokenizer, 10000)
-decoder_layer = nn.TransformerDecoderLayer(d_model=hidden_size, nhead=6, batch_first=True)
+decoder_layer = nn.TransformerDecoderLayer(d_model=hidden_size, nhead=8, batch_first=True)
 norm_layer = nn.LayerNorm(hidden_size)
 decoder = MyDecoder(nn.TransformerDecoder(decoder_layer, num_layers = 4, norm = norm_layer), hidden_size, vocab_size)
 decoder = train(pretrained_model, decoder, train_data, 30, config.pad_token_id, device)
