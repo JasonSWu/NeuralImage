@@ -22,7 +22,7 @@ def main(decoder_name):
     chatbot = ChatBot(pretrained_model, decoder, tokenizer, config.bos_token_id, config.eos_token_id, device)
     input_ = input()
     while input_ != "q":
-        print(tokenizer.decode(chatbot.forward(**tokenizer(input_, return_tensors="pt"))[0]))
+        print(tokenizer.decode(chatbot.forward(**tokenizer(input_, return_tensors="pt", device=device))[0]))
         input_ = input()
 
 if __name__ == "__main__":
