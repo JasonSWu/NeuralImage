@@ -27,7 +27,8 @@ def main(decoder_name):
     input_ = input()
     while input_ != "q":
         output = chatbot.forward(**tokenizer(input_, return_tensors="pt"))
-        print(tokenizer.decode(output))
+        print(output)
+        print(tokenizer.decode(output[0]))
         input_ = input()
 
 if __name__ == "__main__":
