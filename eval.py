@@ -24,8 +24,7 @@ def main(decoder_name):
     chatbot = chatbot.to(device)
     input_ = input()
     while input_ != "q":
-        output = chatbot.forward(**tokenizer(input_, return_tensors="pt", device=device))
-        print(output)
+        output = chatbot.forward(**tokenizer(input_, return_tensors="pt"))
         print(tokenizer.decode(output))
         input_ = input()
 
