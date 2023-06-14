@@ -12,7 +12,7 @@ class ChatBot(nn.Module):
         self.device = device
         self.embed = pretrained_model.get_input_embeddings()
 
-    def forward(self, input_ids, attention_mask):
+    def forward(self, input_ids, token_type_ids, attention_mask):
         input_ids = input_ids.to(self.device)
         attention_mask = attention_mask.to(self.device)
         with torch.no_grad():
