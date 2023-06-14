@@ -21,7 +21,7 @@ def main(decoder_name):
     decoder.load_state_dict(torch.load(decoder_name))
     decoder = decoder.to(device)
     chatbot = ChatBot(pretrained_model, decoder, tokenizer, config.bos_token_id, config.eos_token_id, device)
-    chatbot = chatbot.to(device)
+    chatbot.eval()
     input_ = input()
     while input_ != "q":
         output = chatbot.forward(**tokenizer(input_, return_tensors="pt"))
@@ -32,4 +32,5 @@ if __name__ == "__main__":
     if len(sys.argv) != 2:
         print("Input the name of a decoder file")
         exit(0)
+    print(sys.argv[1])
     main(sys.argv[1])
