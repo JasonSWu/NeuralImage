@@ -70,5 +70,4 @@ example1 = "谢谢你付我的饭钱!"
 example2 = "你好"
 print(tokenizer.decode(chatbot.forward(**tokenizer(example1, return_tensors="pt"))[0]))
 print(tokenizer.decode(chatbot.forward(**tokenizer(example2, return_tensors="pt"))[0]))
-torch.save(chatbot.state_dict(), "chatbot")
 torch.save(decoder.state_dict(), "decoder")
