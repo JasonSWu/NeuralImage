@@ -62,7 +62,12 @@ train_data = process_data(data['train'], tokenizer, 10000)
 decoder_layer = nn.TransformerDecoderLayer(d_model=hidden_size, nhead=6, batch_first=True)
 norm_layer = nn.LayerNorm(hidden_size)
 decoder = MyDecoder(nn.TransformerDecoder(decoder_layer, num_layers = 4, norm = norm_layer), hidden_size, vocab_size)
-decoder = train(pretrained_model, decoder, train_data, 20, config.pad_token_id, device)
+decoder = train(pretrained_model, decoder, train_data, 30, config.pad_token_id, device)
+torch.save(decoder.state_dict(), "decoder30")
+decoder = train(pretrained_model, decoder, train_data, 10, config.pad_token_id, device)
+torch.save(decoder.state_dict(), "decoder40")
+decoder = train(pretrained_model, decoder, train_data, 10, config.pad_token_id, device)
+torch.save(decoder.state_dict(), "decoder50")
 chatbot = ChatBot(pretrained_model, decoder, tokenizer, config.bos_token_id, config.eos_token_id, device)
 
 chatbot.eval()
@@ -70,4 +75,3 @@ example1 = "谢谢你付我的饭钱!"
 example2 = "你好"
 print(tokenizer.decode(chatbot.forward(**tokenizer(example1, return_tensors="pt"))[0]))
 print(tokenizer.decode(chatbot.forward(**tokenizer(example2, return_tensors="pt"))[0]))
-torch.save(decoder.state_dict(), "decoder")
