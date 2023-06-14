@@ -11,7 +11,7 @@ def main(decoder_name):
     device = torch.device("cuda")
     config = AutoConfig.from_pretrained("bert-base-chinese")
     tokenizer = BertTokenizer.from_pretrained("bert-base-chinese")
-    pretrained_model = BertModel.from_pretrained("bert-base-chinese")
+    pretrained_model = BertModel.from_pretrained("bert-base-chinese").to(device)
     hidden_size = config.hidden_size
     vocab_size = config.vocab_size
 
@@ -19,7 +19,9 @@ def main(decoder_name):
     norm_layer = nn.LayerNorm(hidden_size)
     decoder = MyDecoder(nn.TransformerDecoder(decoder_layer, num_layers = 4, norm = norm_layer), hidden_size, vocab_size)
     decoder.load_state_dict(torch.load(decoder_name))
+    decoder = decoder.to(device)
     chatbot = ChatBot(pretrained_model, decoder, tokenizer, config.bos_token_id, config.eos_token_id, device)
+    chatbot = chatbot.to(device)
     input_ = input()
     while input_ != "q":
         print(tokenizer.decode(chatbot.forward(**tokenizer(input_, return_tensors="pt", device=device))[0]))
