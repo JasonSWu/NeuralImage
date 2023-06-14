@@ -21,7 +21,6 @@ class ChatBot(nn.Module):
             encoded_input = outputs.last_hidden_state
             out_seq = [[self.bos]]
             while out_seq[0][-1] != self.eos:
-                print(out_seq)
                 tgt = self.embed(torch.tensor(out_seq, dtype=torch.long, device=self.device))
                 #print(tgt.size())
                 mask = nn.Transformer.generate_square_subsequent_mask(tgt.size()[1]).bool().to(self.device)

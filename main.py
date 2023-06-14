@@ -56,6 +56,8 @@ pretrained_model.eval()
 pretrained_model.requires_grad_(False)
 hidden_size = config.hidden_size
 vocab_size = config.vocab_size
+bos = 101
+eos = 102
 
 data = load_dataset('silver/personal_dialog')
 train_data = process_data(data['train'], tokenizer, 10000)
@@ -68,7 +70,7 @@ decoder = train(pretrained_model, decoder, train_data, 10, config.pad_token_id, 
 torch.save(decoder.state_dict(), "decoder40")
 decoder = train(pretrained_model, decoder, train_data, 10, config.pad_token_id, device)
 torch.save(decoder.state_dict(), "decoder50")
-chatbot = ChatBot(pretrained_model, decoder, tokenizer, config.bos_token_id, config.eos_token_id, device)
+chatbot = ChatBot(pretrained_model, decoder, tokenizer, 101, 102, device)
 
 chatbot.eval()
 example1 = "谢谢你付我的饭钱!"
