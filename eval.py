@@ -14,13 +14,15 @@ def main(decoder_name):
     pretrained_model = BertModel.from_pretrained("bert-base-chinese").to(device)
     hidden_size = config.hidden_size
     vocab_size = config.vocab_size
+    bos = 101
+    eos = 102
 
     decoder_layer = nn.TransformerDecoderLayer(d_model=hidden_size, nhead=8, batch_first=True)
     norm_layer = nn.LayerNorm(hidden_size)
     decoder = MyDecoder(nn.TransformerDecoder(decoder_layer, num_layers = 4, norm = norm_layer), hidden_size, vocab_size)
     decoder.load_state_dict(torch.load(decoder_name))
     decoder = decoder.to(device)
-    chatbot = ChatBot(pretrained_model, decoder, tokenizer, config.bos_token_id, config.eos_token_id, device)
+    chatbot = ChatBot(pretrained_model, decoder, tokenizer, bos, eos, device)
     chatbot.eval()
     input_ = input()
     while input_ != "q":
