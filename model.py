@@ -15,6 +15,7 @@ class ChatBot(nn.Module):
     def forward(self, input_ids, token_type_ids, attention_mask):
         input_ids = input_ids.to(self.device)
         attention_mask = attention_mask.to(self.device)
+        token_type_ids = token_type_ids.to(self.device)
         with torch.no_grad():
             outputs = self.llm(input_ids=input_ids, attention_mask=attention_mask)
             encoded_input = outputs.last_hidden_state
