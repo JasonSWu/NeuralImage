@@ -72,4 +72,4 @@ if __name__ == "__main__":
     if len(sys.argv) != 3:
         print("Input the num epochs already trained and the desired number of epochs to train")
         exit(0)
-    main(sys.argv[1], sys.argv[2])
+    main(sys.argv[1], int(sys.argv[2]))
