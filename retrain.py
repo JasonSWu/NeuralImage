@@ -59,7 +59,7 @@ def main(trained, to_train):
   vocab_size = config.vocab_size
 
   data = load_dataset('silver/personal_dialog')
-  train_data = process_data(data['train'], tokenizer, 10000)
+  train_data = process_data(data['train'], tokenizer, 100000)
   decoder_layer = nn.TransformerDecoderLayer(d_model=hidden_size, nhead=8, batch_first=True)
   norm_layer = nn.LayerNorm(hidden_size)
   decoder = MyDecoder(nn.TransformerDecoder(decoder_layer, num_layers = 4, norm = norm_layer), hidden_size, vocab_size)
