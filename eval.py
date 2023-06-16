@@ -35,5 +35,4 @@ if __name__ == "__main__":
     if len(sys.argv) != 2:
         print("Input the name of a decoder file")
         exit(0)
-    print(sys.argv[1])
     main(sys.argv[1])
