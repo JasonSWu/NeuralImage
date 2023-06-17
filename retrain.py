@@ -11,10 +11,10 @@ import os, sys
 def upper_tri_mask(n):
   return torch.triu(torch.ones((n,n)), diagonal=1)
 
-def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, device="cuda"):
+def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, device="cuda", lr=0.01):
   base_llm = base_llm.to(device)
   decoder = decoder.to(device)
-  optimizer = torch.optim.SGD(decoder.parameters(), lr=0.01)
+  optimizer = torch.optim.SGD(decoder.parameters(), lr=lr)
   loss_fn = torch.nn.CrossEntropyLoss(ignore_index=PAD_IDX) #Ignore padding, dont let it contribute to training
   embed_fn = base_llm.get_input_embeddings()
 
@@ -47,7 +47,7 @@ def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, device="cuda
     print((f"Epoch: {epoch}, Train loss: {train_loss:.3f}"))
   return decoder
 
-def main(trained, to_train):
+def main(trained, to_train, lr):
   device = torch.device("cuda")
 
   config = AutoConfig.from_pretrained("bert-base-chinese")
@@ -64,12 +64,12 @@ def main(trained, to_train):
   norm_layer = nn.LayerNorm(hidden_size)
   decoder = MyDecoder(nn.TransformerDecoder(decoder_layer, num_layers = 4, norm = norm_layer), hidden_size, vocab_size)
   decoder.load_state_dict(torch.load(f"./decoder{trained}"))
-  decoder = train(pretrained_model, decoder, train_data, to_train, config.pad_token_id, device)
+  decoder = train(pretrained_model, decoder, train_data, to_train, config.pad_token_id, device, lr)
   decoder.eval()
   torch.save(decoder.state_dict(), f"decoder{trained + to_train}")
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        print("Input the num epochs already trained and the desired number of epochs to train")
+    if len(sys.argv) != 4:
+        print("Input the num epochs already trained, the desired number of epochs to train, and the learning rate")
         exit(0)
-    main(int(sys.argv[1]), int(sys.argv[2]))
+    main(int(sys.argv[1]), int(sys.argv[2]), int(sys.argv[3]))
