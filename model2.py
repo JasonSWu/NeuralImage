@@ -10,22 +10,22 @@ def clones(module, N):
     return nn.ModuleList([copy.deepcopy(module) for _ in range(N)])
 
 class Memory(nn.Module):
-    def __init__(self, dim, n_mems, batched=False):
+    def __init__(self, dim, batched=False):
         super(Memory, self).__init__()
-        self.n_mems = n_mems
         self.lin = nn.Linear(dim, dim)
-        self.softmax = nn.Softmax(n_mems)
+        self.softmax = nn.Softmax()
         self.batched = batched
     def forward(self, pooled_output, memories, keys):
-        #keys: (n, mems, dim)
-        #memories: (n, mems, seq, dim)
-        #pooled_output: (n, dim)
+        #keys: (n, mems, dim) or (mems, dim)
+        #memories: (n, mems, seq, dim) or (mems, seq, dim)
+        #pooled_output: (n, dim) or (dim)
+        n_mems = memories.size()[-2]
         to_dot = self.lin(pooled_output)
-        to_dot = torch.unsqueeze(to_dot, dim=-2).repeat([1, self.n_mems, 1] if self.batched else [self.n_mems, 1])
-        #to_dot (n, mems, dim)
-        weights = torch.softmax(torch.sum(to_dot * keys, dim=-1), dim=-1)
-        scaled_memories = torch.einsum('nmsd,nm->nmsd', memories, weights)
-        return torch.transpose(scaled_memories, 0, 1) #(mems, n, seq, dim)
+        to_dot = torch.unsqueeze(to_dot, dim=-2).repeat([1, n_mems, 1] if self.batched else [n_mems, 1])
+        #to_dot (n, mems, dim) or (mems, dim)
+        weights = torch.softmax(torch.sum(to_dot * keys, dim=-1), dim=-1) #dot product along last dimension
+        scaled_memories = torch.einsum('nmsd,nm->nmsd', memories, weights) #scale each memory
+        return torch.transpose(scaled_memories, 0, 1) if self.batched else scaled_memories #(mems, n, seq, dim)
 
 class ManualDecoder(nn.Module):
     def __init__(self, layer, N):
@@ -43,14 +43,13 @@ class ManualDecoder(nn.Module):
         return self.norm(output)
 
 class FineTuneTransformer(nn.Module):
-    def __init__(self, LLM, tokenizer, num_decoder_layers, emb_size, nhead, tgt_vocab_size, embed_fn, max_len, batched=False, dim_feedforward = 512, dropout = 0.1):
+    def __init__(self, LLM, decoder, emb_size, tgt_vocab_size, batched=False, dim_feedforward = 512, dropout = 0.1):
         super(FineTuneTransformer, self).__init__()
         self.encoder = LLM
-        self.decoder = ManualDecoder(nn.TransformerDecoderLayer(emb_size, nhead, dim_feedforward, dropout), num_decoder_layers)
-        self.tokenizer = tokenizer
-        self.embed = embed_fn
+        self.decoder = decoder
+        self.embed = LLM.get_input_embeddings()
         self.out = nn.Linear(emb_size, tgt_vocab_size)
-        self.memory = Memory(emb_size, max_len, batched)
+        self.memory = Memory(emb_size, batched)
     
     def get_src_mask(self, src):
         # Essentially no masking
@@ -70,7 +69,7 @@ class FineTuneTransformer(nn.Module):
 
     def decode(self, tgt, encoded, memory, memory_mask, src_padding_mask, tgt_padding_mask):
         output = self.decoder(
-            self.embed(self.tokenizer(tgt)), encoded, memory, memory_mask, 
+            self.embed(tgt), encoded, memory, memory_mask, 
             src_padding_mask, self.get_tgt_mask(tgt), tgt_padding_mask, self.training)
         return output
     
