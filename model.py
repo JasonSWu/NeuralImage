@@ -1,5 +1,8 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
+import copy
+import math
 
 class ChatBot(nn.Module):
     def __init__(self, pretrained_model, decoder_network, tokenizer, bos_token_id, eos_token_id, device):

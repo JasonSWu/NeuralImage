@@ -32,8 +32,8 @@ class ManualDecoder(nn.Module):
         super(ManualDecoder, self).__init__()
         self.layer = layer
         self.layers = clones(layer, N - 1)
-        self.norm = nn.LayerNorm(layer.dim_emb)
-        self.memory_layer = Memory(layer.dim_emb, batched=batched)
+        self.norm = nn.LayerNorm(hidden_size)
+        self.memory_layer = Memory(hidden_size, batched=batched)
         self.pooler = pooling_fn
         self.lin = nn.Linear(hidden_size, vocab_size)
 
