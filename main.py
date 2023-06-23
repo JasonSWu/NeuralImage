@@ -15,6 +15,7 @@ def pooling_fn(a):
   torch.mean(a, dim=-2)
 
 def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, dim_emb, max_len, device="cuda"):
+  print(4)
   base_llm = base_llm.to(device)
   decoder = decoder.to(device)
   optimizer = torch.optim.SGD(decoder.parameters(), lr=0.01)
@@ -23,7 +24,7 @@ def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, dim_emb, max
   memories = [torch.zeros((1, max_len, dim_emb))]
   memory_masks = [torch.ones((1,max_len))]
   keys = [torch.zeros((1, dim_emb))]
-
+  print(5)
   for epoch in range(1, num_epochs+1):
     decoder.train()
     total_loss = 0
@@ -81,8 +82,11 @@ data = load_dataset('silver/personal_dialog')
 train_data = process_data(data['train'], tokenizer, 10, max_len = max_len)
 print("done!")
 decoder_layer = nn.TransformerDecoderLayer(d_model=hidden_size, nhead=8, batch_first=True)
+print(1)
 norm_layer = nn.LayerNorm(hidden_size)
+print(2)
 decoder = ManualDecoder(nn.TransformerDecoder(decoder_layer, num_layers = 4, norm = norm_layer), hidden_size, vocab_size, pooling_fn)
+print(3)
 
 decoder = train(pretrained_model, decoder, train_data, 10, config.pad_token_id, hidden_size, max_len, device)
 torch.save(decoder.state_dict(), "decoder10")
