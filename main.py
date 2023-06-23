@@ -12,7 +12,7 @@ def upper_tri_mask(n):
   return torch.triu(torch.ones((n,n)), diagonal=1)
 
 def pooling_fn(a):
-  torch.mean(a, dim=-2)
+  return torch.mean(a, dim=-2)
 
 def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, dim_emb, max_len, device="cuda"):
   print(4)
