@@ -68,7 +68,7 @@ device = torch.device("cuda")
 
 config = AutoConfig.from_pretrained("Alethea/GPT2-chitchat")
 tokenizer = AutoTokenizer.from_pretrained("Alethea/GPT2-chitchat")
-pretrained_model = AutoModelForCausalLM.from_pretrained("Alethea/GPT2-chitchat")
+pretrained_model = AutoModelForCausalLM.from_pretrained("Alethea/GPT2-chitchat").base_model
 pretrained_model.eval()
 pretrained_model.requires_grad_(False)
 hidden_size = config.hidden_size
