@@ -46,8 +46,8 @@ def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, dim_emb, max
 
           embedded_tgt = embed_fn(tgt)
           probabilities = decoder(embedded_tgt, encoding, 
-                                  torch.concat(memories, dim=0), torch.concat(keys, dim=0), 
-                                  torch.concat(memory_masks, dim=0), tgt_mask, tgt_padding_mask)
+                                  torch.concat(memories, dim=0).to(device), torch.concat(keys, dim=0).to(device), 
+                                  torch.concat(memory_masks, dim=0).to(device), tgt_mask, tgt_padding_mask)
 
           loss = loss_fn(torch.transpose(probabilities, 1, 2), truth) #need (batches, classes, seq). Before transpose, is (bathces, seq, classes)
           loss.backward()
