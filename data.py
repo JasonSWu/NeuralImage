@@ -18,5 +18,6 @@ def process_data(dataset, tokenizer, n, max_len):
         #uids = entry['uid']
         tokenized = [tokenizer(sentence.replace(" ", ""), return_tensors="pt", padding = 'max_length', max_length = max_len) for sentence in dialogue]
         out.append(tokenized)
+        count += 1
     return out
     
