@@ -28,13 +28,14 @@ class Memory(nn.Module):
         return torch.transpose(scaled_memories, 0, 1) if self.batched else scaled_memories #(mems, n, seq, dim)
 
 class ManualDecoder(nn.Module):
-    def __init__(self, layer, N, batched, pooling_fn):
+    def __init__(self, layer, N, batched, hidden_size, vocab_size, pooling_fn):
         super(ManualDecoder, self).__init__()
         self.layer = layer
         self.layers = clones(layer, N - 1)
         self.norm = nn.LayerNorm(layer.dim_emb)
         self.memory_layer = Memory(layer.dim_emb, batched=batched)
         self.pooler = pooling_fn
+        self.lin = nn.Linear(hidden_size, vocab_size)
 
     def forward(self, tgt, encoded, memories, mem_keys, memory_masks, tgt_mask, tgt_padding_mask):
         memories = self.memory_layer(self.pooler(encoded), memories, mem_keys)
@@ -43,7 +44,7 @@ class ManualDecoder(nn.Module):
             output = self.layer.forward(output, mem, mem_mask)
         for layer in self.layers:
             output = layer.forward(output, encoded, tgt_mask, tgt_padding_mask)
-        return self.norm(output)
+        return self.lin(self.norm(output))
 
 class FineTuneTransformer(nn.Module):
     def __init__(self, LLM, decoder, emb_size, tgt_vocab_size, BOS_token_id, EOS_token_id, dim_feedforward = 512, dropout = 0.1):
@@ -51,7 +52,6 @@ class FineTuneTransformer(nn.Module):
         self.encoder = LLM
         self.decoder = decoder
         self.embed = LLM.get_input_embeddings()
-        self.out = nn.Linear(emb_size, tgt_vocab_size)
         self.BOS = BOS_token_id
         self.EOS = EOS_token_id
     
