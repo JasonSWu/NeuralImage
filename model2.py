@@ -24,7 +24,7 @@ class Memory(nn.Module):
         to_dot = torch.unsqueeze(to_dot, dim=-2).repeat([1, n_mems, 1] if self.batched else [n_mems, 1])
         #to_dot (n, mems, dim) or (mems, dim)
         weights = torch.softmax(torch.sum(to_dot * keys, dim=-1), dim=-1) * n_mems #dot product along last dimension
-        scaled_memories = torch.einsum('...msd,...m->msd') #scale each memory
+        scaled_memories = torch.einsum('...msd,...m->...msd', memories, weights) #scale each memory
         return torch.transpose(scaled_memories, 0, 1) if self.batched else scaled_memories #(mems, n, seq, dim)
 
 class ManualDecoder(nn.Module):
