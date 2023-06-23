@@ -9,7 +9,6 @@ def process_data(dataset, tokenizer, n, max_len):
     count = 0
     for entry in tqdm(dataset):
         print(count)
-        print("yooooooooooo------------------------------")
         if count > n:
             break
         if len(entry['uid']) < 3:
