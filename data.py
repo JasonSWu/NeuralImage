@@ -4,11 +4,10 @@ import torch
 from tqdm import tqdm
 
 def process_data(dataset, tokenizer, n, max_len):
-    print(dataset['features'])
     dialogue = None
     out = []
     count = 0
-    for entry in tqdm(dataset[:n]):
+    for entry in tqdm(dataset):
         if count > n:
             break
         if len(entry['uid']) < 3:
