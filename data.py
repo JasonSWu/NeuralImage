@@ -12,7 +12,6 @@ def process_data(dataset, tokenizer, n, max_len):
             break
         if len(entry['uid']) < 3:
             continue
-        print(count)
         dialogue = entry['dialog']
         #profiles = entry['profile']
         #uids = entry['uid']
