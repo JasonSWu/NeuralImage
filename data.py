@@ -8,11 +8,11 @@ def process_data(dataset, tokenizer, n, max_len):
     out = []
     count = 0
     for entry in tqdm(dataset):
-        print(count)
         if count > n:
             break
         if len(entry['uid']) < 3:
             continue
+        print(count)
         dialogue = entry['dialog']
         #profiles = entry['profile']
         #uids = entry['uid']
