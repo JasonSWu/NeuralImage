@@ -4,6 +4,7 @@ import torch
 from tqdm import tqdm
 
 def process_data(dataset, tokenizer, n, max_len):
+    print(dataset)
     dialogue = None
     out = []
     count = 0
