@@ -79,6 +79,7 @@ config.pad_token_id = 0
 
 data = load_dataset('silver/personal_dialog')
 train_data = process_data(data['train'], tokenizer, 100, max_len = max_len)
+print("done!")
 decoder_layer = nn.TransformerDecoderLayer(d_model=hidden_size, nhead=8, batch_first=True)
 norm_layer = nn.LayerNorm(hidden_size)
 decoder = ManualDecoder(nn.TransformerDecoder(decoder_layer, num_layers = 4, norm = norm_layer), hidden_size, vocab_size, pooling_fn)
