@@ -57,7 +57,7 @@ def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, dim_emb, max
 
           keys.append(pooled)
           memories.append(encoding)
-          memory_masks.append(src['attention_mask'])
+          memory_masks.append(src_padding_mask)
         memories.clear()
         memory_masks.clear()
         keys.clear()
