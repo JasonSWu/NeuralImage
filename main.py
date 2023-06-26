@@ -21,7 +21,7 @@ def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, dim_emb, max
   loss_fn = torch.nn.CrossEntropyLoss(ignore_index=PAD_IDX) #Ignore padding, dont let it contribute to training
   embed_fn = base_llm.get_input_embeddings()
   memories = [torch.zeros((1, 1, max_len, dim_emb))] #want (n_mems, batch_size, seq_len, dim_emb)
-  memory_masks = [torch.ones((1, 1, max_len))] # (n_mems, batch_size, seq_len)
+  memory_masks = [torch.ones((1, max_len, max_len))] # (n_mems, seq_len, seq_len)
   keys = [torch.zeros((1, 1, dim_emb))] # (n_mems, batch_size, dim_emb)
   for epoch in range(1, num_epochs+1):
     decoder.train()
