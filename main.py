@@ -55,6 +55,7 @@ def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, dim_emb, max
           optimizer.step()
           total_loss += loss.item()
 
+          print(pooled.size(), encoding.size(), src_padding_mask.size())
           keys.append(pooled)
           memories.append(encoding)
           memory_masks.append(src_padding_mask)
