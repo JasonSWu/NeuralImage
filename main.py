@@ -76,6 +76,8 @@ pretrained_model.eval()
 pretrained_model.requires_grad_(False)
 hidden_size = config.hidden_size
 vocab_size = config.vocab_size
+print(hidden_size, vocab_size)
+print(input())
 bos = 101
 eos = 102
 max_len = 271 #541 with spaces
