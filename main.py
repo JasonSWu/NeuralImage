@@ -87,7 +87,7 @@ decoder_layer = nn.TransformerDecoderLayer(d_model=hidden_size, nhead=8, batch_f
 print(1)
 norm_layer = nn.LayerNorm(hidden_size)
 print(2)
-decoder = ManualDecoder(decoder_layer, 4, True, hidden_size, vocab_size, pooling_fn)
+decoder = ManualDecoder(decoder_layer, 3, True, hidden_size, vocab_size, pooling_fn)
 print(3)
 
 decoder = train(pretrained_model, decoder, train_data, 10, config.pad_token_id, hidden_size, max_len, device)
