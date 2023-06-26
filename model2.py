@@ -37,14 +37,17 @@ class ManualDecoder(nn.Module):
         self.pooler = pooling_fn
         self.lin = nn.Linear(hidden_size, vocab_size)
 
-    def forward(self, tgt, encoded, memories, mem_keys, memory_masks, tgt_mask, tgt_padding_mask):
-        print(tgt.size(), encoded.size(), memories.size(), mem_keys.size(), memory_masks.size(), tgt_mask.size(), tgt_padding_mask)
+    def forward(self, tgt, encoded, src_padding_mask, memories, mem_keys, memory_padding_masks, tgt_mask, tgt_padding_mask):
+        print(tgt.size(), encoded.size(), memories.size(), mem_keys.size(), memory_padding_masks.size(), tgt_mask.size(), tgt_padding_mask.size())
+        #tgt(bsz, max_seq-1, emb); encoded(bsz, max_seq, emb); memories(n_mems, bsz, max_seq, emb);
+        #mem_keys(n_mems, bsz, emb); memory_padding_masks(n_mems, bsz, max_seq); tgt_mask(bsz, max_seq-1, max_seq-1);
+        #tgt_padding_mask(bsz, max_seq-1)
         memories = self.memory_layer(self.pooler(encoded), memories, mem_keys)
         output = self.layer(tgt, encoded, tgt_mask=tgt_mask, tgt_key_padding_mask=tgt_padding_mask)
-        for mem, mem_mask in zip(memories, memory_masks):
-            output = self.layer.forward(output, mem, tgt_mask, mem_mask, tgt_padding_mask)
+        for mem, mem_pad_mask in zip(memories, memory_padding_masks):
+            output = self.layer.forward(output, mem, tgt_mask, tgt_key_padding_mask = tgt_padding_mask, memory_key_paddding_mask = mem_pad_mask)
         for layer in self.layers:
-            output = layer.forward(output, encoded, tgt_mask, tgt_padding_mask)
+            output = layer.forward(output, encoded, tgt_mask, tgt_key_padding_mask = tgt_padding_mask, memory_key_paddding_mask = src_padding_mask)
         return self.lin(self.norm(output))
 
 class FineTuneTransformer(nn.Module):
@@ -74,7 +77,7 @@ class FineTuneTransformer(nn.Module):
 
     def decode(self, tgt, encoded, memories, mem_keys, memory_mask, src_padding_mask, tgt_padding_mask):
         output = self.decoder(
-            self.embed(tgt), encoded, memories, mem_keys, memory_mask, 
+            self.embed(tgt), encoded, src_padding_mask, memories, mem_keys, memory_mask, 
             self.get_tgt_mask(tgt), tgt_padding_mask)
         return output
     
@@ -89,9 +92,8 @@ class FineTuneTransformer(nn.Module):
             while out_seq[0][-1] != self.EOS or len(out_seq[0] > 200):
                 tgt = self.embed(torch.tensor(out_seq, dtype=torch.long, device=self.device))
                 #print(tgt.size())
-                tgt_mask = nn.Transformer.generate_square_subsequent_mask(tgt.size()[1]).bool().to(self.device)
-                #print(mask.size())
-                response_logits = self.decoder(tgt, encoded_input, kv_store, keys, memory_masks, tgt_mask, attention_mask)
+                #No tgt_padding_maks. We are making tgt
+                response_logits = self.decoder(tgt, encoded_input, kv_store, keys, memory_masks, attention_mask, None)
                 #print(response_logits.size())
                 token_id = torch.argmax(response_logits[:, -1, :], dim=-1)
                 #print("---------------------------------")

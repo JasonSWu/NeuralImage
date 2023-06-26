@@ -21,7 +21,7 @@ def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, dim_emb, max
   loss_fn = torch.nn.CrossEntropyLoss(ignore_index=PAD_IDX) #Ignore padding, dont let it contribute to training
   embed_fn = base_llm.get_input_embeddings()
   memories = [torch.zeros((1, 1, max_len, dim_emb))] #want (n_mems, batch_size, seq_len, dim_emb)
-  memory_masks = [torch.ones((1, max_len, max_len))] # (n_mems, seq_len, seq_len)
+  memory_masks = [torch.ones((1, 1, max_len))] # (n_mems, batch_size, seq_len) or (n_mems, seq_len) to apply to entre batch
   keys = [torch.zeros((1, 1, dim_emb))] # (n_mems, batch_size, dim_emb)
   for epoch in range(1, num_epochs+1):
     decoder.train()
@@ -32,9 +32,10 @@ def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, dim_emb, max
         total_replies += n_replies
         for i in range(n_replies):
           #src and tgt should have token IDs, not actual words
-          src, tgt, tgt_padding_mask = convo[i], convo[i + 1]['input_ids'].to(device), convo[i + 1]['attention_mask'][:,:-1].to(device)
+          src, src_padding_mask = convo[i]['input_ids'].to(device), convo[i]['attention_mask'][:,:-1].to(device)
+          tgt, tgt_padding_mask = convo[i + 1]['input_ids'].to(device), convo[i + 1]['attention_mask'][:,:-1].to(device)
           optimizer.zero_grad()
-          encoded_input = base_llm(input_ids = src['input_ids'].to(device), attention_mask = src['attention_mask'].to(device))
+          encoded_input = base_llm(input_ids = src, attention_mask = src_padding_mask)
           encoding = encoded_input.last_hidden_state #(seq_length, embed_size)
           pooled = torch.mean(encoding, dim=1) #(embed_size)
           #Working with tgt = (batch, seq, embed_size)
@@ -43,7 +44,7 @@ def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, dim_emb, max
           tgt_mask = nn.Transformer.generate_square_subsequent_mask(tgt.size()[1]).bool().to(device)
 
           embedded_tgt = embed_fn(tgt)
-          probabilities = decoder(embedded_tgt, encoding, 
+          probabilities = decoder(embedded_tgt, encoding, src_padding_mask,
                                   torch.concat(memories, dim=0).to(device), torch.concat(keys, dim=0).to(device), 
                                   torch.concat(memory_masks, dim=0).to(device), tgt_mask, tgt_padding_mask.to(torch.float32))
 
@@ -56,6 +57,7 @@ def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, dim_emb, max
 
           keys.append(pooled)
           memories.append(encoding)
+          memory_masks.append(src['attention_mask'])
         memories.clear()
         memory_masks.clear()
         keys.clear()
