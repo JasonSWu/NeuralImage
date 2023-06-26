@@ -41,6 +41,7 @@ class ManualDecoder(nn.Module):
         memories = self.memory_layer(self.pooler(encoded), memories, mem_keys)
         output = self.layer(tgt, encoded, tgt_mask=tgt_mask, tgt_key_padding_mask=tgt_padding_mask)
         for mem, mem_mask in zip(memories, memory_masks):
+            print(mem.size(), mem_mask.size())
             output = self.layer.forward(output, mem, mem_mask)
         for layer in self.layers:
             output = layer.forward(output, encoded, tgt_mask, tgt_padding_mask)
