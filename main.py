@@ -20,9 +20,9 @@ def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, dim_emb, max
   optimizer = torch.optim.SGD(decoder.parameters(), lr=0.01)
   loss_fn = torch.nn.CrossEntropyLoss(ignore_index=PAD_IDX) #Ignore padding, dont let it contribute to training
   embed_fn = base_llm.get_input_embeddings()
-  memories = [torch.zeros((1, 1, max_len, dim_emb))] #want (n_mems, batch_size, seq_len, dim_emb)
-  memory_masks = [torch.ones((1, 1, max_len))] # (n_mems, batch_size, seq_len) or (n_mems, seq_len) to apply to entre batch
-  keys = [torch.zeros((1, 1, dim_emb))] # (n_mems, batch_size, dim_emb)
+  memories = [torch.zeros((1, 1, max_len, dim_emb), device=device)] #want (n_mems, batch_size, seq_len, dim_emb)
+  memory_masks = [torch.ones((1, 1, max_len), device=device)] # (n_mems, batch_size, seq_len) or (n_mems, seq_len) to apply to entre batch
+  keys = [torch.zeros((1, 1, dim_emb), device=device)] # (n_mems, batch_size, dim_emb)
   for epoch in range(1, num_epochs+1):
     decoder.train()
     total_loss = 0
@@ -44,9 +44,9 @@ def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, dim_emb, max
           tgt_mask = nn.Transformer.generate_square_subsequent_mask(tgt.size()[1]).bool().to(device)
 
           embedded_tgt = embed_fn(tgt)
-          probabilities = decoder(embedded_tgt, encoding, src_padding_mask,
-                                  torch.concat(memories, dim=0).to(device), torch.concat(keys, dim=0).to(device), 
-                                  torch.concat(memory_masks, dim=0).to(device), tgt_mask, tgt_padding_mask.to(torch.float32))
+          probabilities = decoder(embedded_tgt, encoding, src_padding_mask.to(torch.float32),
+                                  torch.concat(memories, dim=0), torch.concat(keys, dim=0), 
+                                  torch.concat(memory_masks, dim=0), tgt_mask, tgt_padding_mask.to(torch.float32))
 
           loss = loss_fn(torch.transpose(probabilities, 1, 2), truth) #need (batches, classes, seq). Before transpose, is (bathces, seq, classes)
           loss.backward()
