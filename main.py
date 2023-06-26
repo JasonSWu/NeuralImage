@@ -32,7 +32,7 @@ def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, dim_emb, max
         total_replies += n_replies
         for i in range(n_replies):
           #src and tgt should have token IDs, not actual words
-          src, src_padding_mask = convo[i]['input_ids'].to(device), convo[i]['attention_mask'][:,:-1].to(device)
+          src, src_padding_mask = convo[i]['input_ids'].to(device), convo[i]['attention_mask'].to(device)
           tgt, tgt_padding_mask = convo[i + 1]['input_ids'].to(device), convo[i + 1]['attention_mask'][:,:-1].to(device)
           optimizer.zero_grad()
           encoded_input = base_llm(input_ids = src, attention_mask = src_padding_mask)
