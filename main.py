@@ -56,9 +56,9 @@ def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, dim_emb, max
           total_loss += loss.item()
 
           print(pooled.size(), encoding.size(), src_padding_mask.size())
-          keys.append(pooled)
-          memories.append(encoding)
-          memory_masks.append(src_padding_mask)
+          memories.append(torch.unsqueeze(encoding, dim=0))
+          keys.append(torch.unsqueeze(pooled, dim=0))
+          memory_masks.append(torch.unsqueeze(src_padding_mask, dim=0))
         memories.clear()
         memory_masks.clear()
         keys.clear()
