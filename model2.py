@@ -38,10 +38,10 @@ class ManualDecoder(nn.Module):
         self.lin = nn.Linear(hidden_size, vocab_size)
 
     def forward(self, tgt, encoded, memories, mem_keys, memory_masks, tgt_mask, tgt_padding_mask):
+        print(tgt.size(), encoded.size(), memories.size(), mem_keys.size(), memory_masks.size(), tgt_mask.size(), tgt_padding_mask)
         memories = self.memory_layer(self.pooler(encoded), memories, mem_keys)
         output = self.layer(tgt, encoded, tgt_mask=tgt_mask, tgt_key_padding_mask=tgt_padding_mask)
         for mem, mem_mask in zip(memories, memory_masks):
-            print(mem.size(), mem_mask.size())
             output = self.layer.forward(output, mem, tgt_mask, mem_mask, tgt_padding_mask)
         for layer in self.layers:
             output = layer.forward(output, encoded, tgt_mask, tgt_padding_mask)
