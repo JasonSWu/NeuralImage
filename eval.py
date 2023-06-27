@@ -28,7 +28,7 @@ def main(decoder_name):
     decoder = ManualDecoder(decoder_layer, 3, True, hidden_size, vocab_size, pooling_fn)
     decoder.load_state_dict(torch.load(decoder_name))
     decoder = decoder.to(device)
-    chatbot = FineTuneTransformer(pretrained_model, decoder, hidden_size, bos, eos)
+    chatbot = FineTuneTransformer(pretrained_model, decoder, bos, eos, device)
     
     memories = [torch.zeros((1, 1, max_len, hidden_size), device=device)] #want (batch_size, n_mems, seq_len, dim_emb)
     memory_masks = [torch.ones((1, 1, max_len), device=device)] # (n_mems, batch_size, seq_len) or (n_mems, seq_len) to apply to entre batch
