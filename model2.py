@@ -19,12 +19,17 @@ class Memory(nn.Module):
         #keys: (n, mems, dim) or (mems, dim)
         #memories: (n, mems, seq, dim) or (mems, seq, dim)
         #pooled_output: (n, dim) or (dim)
+        print(f"pooled:{pooled_output.size()}, memories:{memories.size()}, keys:{keys.size()}")
         n_mems = memories.size()[-2]
         to_dot = self.lin(pooled_output)
+        print(f"to_dot:{to_dot.size()}")
         to_dot = torch.unsqueeze(to_dot, dim=-2).repeat([1, n_mems, 1] if self.batched else [n_mems, 1])
+        print(f"to_dot:{to_dot.size()}")
         #to_dot (n, mems, dim) or (mems, dim)
         weights = torch.softmax(torch.sum(to_dot * keys, dim=-1), dim=-1) * n_mems #dot product along last dimension
+        print(f"weights:{weights.size()}")
         scaled_memories = torch.einsum('...msd,...m->...msd', memories, weights) #scale each memory
+        print(f"weights:{weights.size()}")
         return torch.transpose(scaled_memories, 0, 1) if self.batched else scaled_memories #(mems, n, seq, dim)
 
 class ManualDecoder(nn.Module):
