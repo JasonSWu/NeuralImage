@@ -20,6 +20,8 @@ def main(decoder_name):
     vocab_size = config.vocab_size
     bos = 101
     eos = 102
+    max_len = 271 #541 with spaces
+    config.pad_token_id = 0
 
     decoder_layer = nn.TransformerDecoderLayer(d_model=hidden_size, nhead=8, batch_first=True)
     norm_layer = nn.LayerNorm(hidden_size)
@@ -27,9 +29,15 @@ def main(decoder_name):
     decoder.load_state_dict(torch.load(decoder_name))
     decoder = decoder.to(device)
     chatbot = FineTuneTransformer(pretrained_model, decoder, hidden_size, bos, eos)
+    
+    memories = [torch.zeros((1, 1, max_len, hidden_size), device=device)] #want (batch_size, n_mems, seq_len, dim_emb)
+    memory_masks = [torch.ones((1, 1, max_len), device=device)] # (n_mems, batch_size, seq_len) or (n_mems, seq_len) to apply to entre batch
+    keys = [torch.zeros((1, 1, hidden_size), device=device)]
     input_ = input()
     while input_ != "q":
-        output = chatbot.forward(**tokenizer(input_, return_tensors="pt"))
+        tokenized = tokenizer(input_, padding='max_length', max_length=max_len, return_tensors="pt")
+        output = chatbot.forward(tokenized['input_ids'], torch.concat(memories, dim=1), torch.concat(keys, dim=1), 
+                                 torch.concat(memory_masks, dim=0), tokenizer['attention_mask'], tokenizer['token_type_ids'])
         print(output)
         print(tokenizer.decode(output[0]))
         input_ = input()

@@ -81,19 +81,19 @@ class FineTuneTransformer(nn.Module):
             self.get_tgt_mask(tgt), tgt_padding_mask)
         return output
     
-    def forward(self, input_ids, kv_store, keys, memory_masks, attention_mask):
+    def forward(self, input_ids, kv_store, keys, memory_masks, attention_mask, token_type_ids):
         # Note that this implementation is for teacher forcing.
         input_ids = input_ids.to(self.device)
         attention_mask = attention_mask.to(self.device)
+        token_type_ids = token_type_ids.to(self.device)
         with torch.no_grad():
-            encoding = self.llm(input_ids=input_ids, attention_mask=attention_mask)
-            encoded_input = encoding.last_hidden_state
+            encoding = self.encode(input_ids, attention_mask, token_type_ids)
             out_seq = [[self.BOS]]
             while out_seq[0][-1] != self.EOS or len(out_seq[0] > 200):
                 tgt = self.embed(torch.tensor(out_seq, dtype=torch.long, device=self.device))
                 #print(tgt.size())
                 #No tgt_padding_maks. We are making tgt
-                response_logits = self.decoder(tgt, encoded_input, kv_store, keys, memory_masks, attention_mask, None)
+                response_logits = self.decoder(tgt, encoding, kv_store, keys, memory_masks, attention_mask, None)
                 #print(response_logits.size())
                 token_id = torch.argmax(response_logits[:, -1, :], dim=-1)
                 #print("---------------------------------")
