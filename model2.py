@@ -94,8 +94,8 @@ class FineTuneTransformer(nn.Module):
                 tgt = self.embed(torch.tensor(out_seq, dtype=torch.long, device=self.device))
                 #print(tgt.size())
                 #No tgt_padding_maks. We are making tgt
-                tgt_mask = nn.Transformer.generate_square_subsequent_mask(tgt.size()[1]).bool().to(device)
-                response_logits = self.decoder(tgt, encoding, attention_mask, kv_store, keys, memory_masks, tgt_mask, None)
+                tgt_mask = nn.Transformer.generate_square_subsequent_mask(tgt.size()[1]).to(device)
+                response_logits = self.decoder(tgt, encoding, attention_mask.to(torch.float32), kv_store, keys, memory_masks, tgt_mask.to(torch.float32), None)
                 #print(response_logits.size())
                 token_id = torch.argmax(response_logits[:, -1, :], dim=-1)
                 #print("---------------------------------")
