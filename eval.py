@@ -6,8 +6,10 @@ from transformers import BertModel, BertTokenizer
 from model import ChatBot, MyDecoder
 from model2 import ManualDecoder, FineTuneTransformer
 from data import process_data
-from main import pooling_fn
 import sys
+
+def pooling_fn(a):
+  return torch.mean(a, dim=-2)
 
 def main(decoder_name):
     device = torch.device("cuda")
