@@ -38,13 +38,14 @@ class ManualDecoder(nn.Module):
         self.lin = nn.Linear(hidden_size, vocab_size)
 
     def forward(self, tgt, encoded, src_padding_mask, memories, mem_keys, memory_padding_masks, tgt_mask, tgt_padding_mask):
-        print(tgt.size(), encoded.size(), memories.size(), mem_keys.size(), memory_padding_masks.size(), tgt_mask.size(), tgt_padding_mask.size())
+        #print(tgt.size(), encoded.size(), memories.size(), mem_keys.size(), memory_padding_masks.size(), tgt_mask.size(), tgt_padding_mask.size())
         #tgt(bsz, max_seq-1, emb); encoded(bsz, max_seq, emb); memories(n_mems, bsz, max_seq, emb);
         #mem_keys(n_mems, bsz, emb); memory_padding_masks(n_mems, bsz, max_seq); tgt_mask(bsz, max_seq-1, max_seq-1);
         #tgt_padding_mask(bsz, max_seq-1)
         memories = self.memory_layer(self.pooler(encoded), memories, mem_keys)
         output = self.layer(tgt, encoded, tgt_mask=tgt_mask, tgt_key_padding_mask=tgt_padding_mask)
         for mem, mem_pad_mask in zip(memories, memory_padding_masks):
+            print(mem.size())
             output = self.layer.forward(output, mem, tgt_mask, tgt_key_padding_mask = tgt_padding_mask, memory_key_padding_mask = mem_pad_mask)
         for layer in self.layers:
             output = layer.forward(output, encoded, tgt_mask, tgt_key_padding_mask = tgt_padding_mask, memory_key_padding_mask = src_padding_mask)
