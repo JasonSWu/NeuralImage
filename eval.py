@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from datasets import load_dataset
-from transformers import AutoConfig, AutoTokenizer, XLMRobertaModel
+from transformers import AutoConfig, AutoTokenizer, AutoModelForCausalLM
 from transformers import BertModel, BertTokenizer
 from model import ChatBot, MyDecoder
 from model2 import ManualDecoder, FineTuneTransformer
@@ -13,9 +13,9 @@ def pooling_fn(a):
 
 def main(decoder_name):
     device = torch.device("cuda")
-    config = AutoConfig.from_pretrained("bert-base-chinese")
-    tokenizer = BertTokenizer.from_pretrained("bert-base-chinese")
-    pretrained_model = BertModel.from_pretrained("bert-base-chinese").to(device)
+    config = AutoConfig.from_pretrained("Alethea/GPT2-chitchat")
+    tokenizer = AutoTokenizer.from_pretrained("Alethea/GPT2-chitchat")
+    pretrained_model = AutoModelForCausalLM.from_pretrained("Alethea/GPT2-chitchat").base_model.to(device)
     hidden_size = config.hidden_size
     vocab_size = config.vocab_size
     bos = 101
