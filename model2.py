@@ -20,7 +20,7 @@ class Memory(nn.Module):
         #memories: (n, mems, seq, dim) or (mems, seq, dim)
         #pooled_output: (n, dim) or (dim)
         print(f"pooled:{pooled_output.size()}, memories:{memories.size()}, keys:{keys.size()}")
-        n_mems = memories.size()[-2]
+        n_mems = memories.size()[-3]
         to_dot = self.lin(pooled_output)
         print(f"to_dot:{to_dot.size()}")
         to_dot = torch.unsqueeze(to_dot, dim=-2).repeat([1, n_mems, 1] if self.batched else [n_mems, 1])
