@@ -58,9 +58,9 @@ def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, dim_emb, max
           memories.append(torch.unsqueeze(encoding, dim=0))
           keys.append(torch.unsqueeze(pooled, dim=0))
           memory_masks.append(torch.unsqueeze(src_padding_mask, dim=0))
-        memories.clear()
-        memory_masks.clear()
-        keys.clear()
+        del memories[1:]
+        del memory_masks[1:]
+        del keys[1:]
 
     train_loss = total_loss / total_replies
     print((f"Epoch: {epoch}, Train loss: {train_loss:.3f}"))
