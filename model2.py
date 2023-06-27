@@ -52,7 +52,7 @@ class ManualDecoder(nn.Module):
         return self.lin(self.norm(output))
 
 class FineTuneTransformer(nn.Module):
-    def __init__(self, LLM, decoder, emb_size, tgt_vocab_size, BOS_token_id, EOS_token_id, dim_feedforward = 512, dropout = 0.1):
+    def __init__(self, LLM, decoder, emb_size, BOS_token_id, EOS_token_id, dropout = 0.1):
         super(FineTuneTransformer, self).__init__()
         self.encoder = LLM
         self.decoder = decoder
