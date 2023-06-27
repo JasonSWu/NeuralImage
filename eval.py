@@ -40,9 +40,9 @@ def main(decoder_name):
                                  torch.concat(memory_masks, dim=0), tokenized['attention_mask'], tokenized['token_type_ids'])
         print(output)
         print(tokenizer.decode(output[0]))
-        memories.append(torch.unsqueeze(encoding, dim=0))
-        memory_masks.append(torch.unsqueeze(tokenized['attention_mask'], dim=0))
-        keys.append(torch.unsqueeze(pooling_fn(encoding), dim=0))
+        memories.append(torch.unsqueeze(encoding.to(device), dim=0))
+        memory_masks.append(torch.unsqueeze(tokenized['attention_mask'].to(device), dim=0))
+        keys.append(torch.unsqueeze(pooling_fn(encoding).to(device), dim=0))
         input_ = input()
 
 if __name__ == "__main__":
