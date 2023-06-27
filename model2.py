@@ -98,4 +98,4 @@ class FineTuneTransformer(nn.Module):
                 token_id = torch.argmax(response_logits[:, -1, :], dim=-1)
                 #print("---------------------------------")
                 out_seq[0].append(token_id.item())
-            return out_seq
+            return out_seq, encoding

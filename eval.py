@@ -36,10 +36,13 @@ def main(decoder_name):
     input_ = input()
     while input_ != "q":
         tokenized = tokenizer(input_, padding='max_length', max_length=max_len, return_tensors="pt")
-        output = chatbot.forward(tokenized['input_ids'], torch.concat(memories, dim=1), torch.concat(keys, dim=1), 
+        output, encoding = chatbot.forward(tokenized['input_ids'], torch.concat(memories, dim=1), torch.concat(keys, dim=1), 
                                  torch.concat(memory_masks, dim=0), tokenizer['attention_mask'], tokenizer['token_type_ids'])
         print(output)
         print(tokenizer.decode(output[0]))
+        memories.append(torch.unsqueeze(encoding, dim=0))
+        memory_masks.append(torch.unsqueeze(tokenizer['attention_mask'], dim=0))
+        keys.append(torch.unsqueeze(pooling_fn(encoding), dim=0))
         input_ = input()
 
 if __name__ == "__main__":

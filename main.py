@@ -37,7 +37,7 @@ def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, dim_emb, max
           optimizer.zero_grad()
           encoded_input = base_llm(input_ids = src, attention_mask = src_padding_mask)
           encoding = encoded_input.last_hidden_state #(seq_length, embed_size)
-          pooled = torch.mean(encoding, dim=1) #(embed_size)
+          pooled = pooling_fn(encoding) #(embed_size)
           #Working with tgt = (batch, seq, embed_size)
           truth = tgt[:, 1:]
           tgt = tgt[:, :-1]
