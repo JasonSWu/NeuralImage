@@ -94,4 +94,4 @@ decoder = train(pretrained_model, decoder, train_data, 10, config.pad_token_id, 
 torch.save(decoder.state_dict(), "decoder30")
 decoder = train(pretrained_model, decoder, train_data, 10, config.pad_token_id, hidden_size, max_len, device)
 torch.save(decoder.state_dict(), "decoder40")
-chatbot = FineTuneTransformer(pretrained_model, decoder, hidden_size, 101, 102, hidden_size, max_len, device)
+chatbot = FineTuneTransformer(pretrained_model, decoder, hidden_size, bos, eos)

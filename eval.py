@@ -4,7 +4,9 @@ from datasets import load_dataset
 from transformers import AutoConfig, AutoTokenizer, XLMRobertaModel
 from transformers import BertModel, BertTokenizer
 from model import ChatBot, MyDecoder
+from model2 import ManualDecoder, FineTuneTransformer
 from data import process_data
+from main import pooling_fn
 import sys
 
 def main(decoder_name):
@@ -19,11 +21,10 @@ def main(decoder_name):
 
     decoder_layer = nn.TransformerDecoderLayer(d_model=hidden_size, nhead=8, batch_first=True)
     norm_layer = nn.LayerNorm(hidden_size)
-    decoder = MyDecoder(nn.TransformerDecoder(decoder_layer, num_layers = 4, norm = norm_layer), hidden_size, vocab_size)
+    decoder = ManualDecoder(decoder_layer, 3, True, hidden_size, vocab_size, pooling_fn)
     decoder.load_state_dict(torch.load(decoder_name))
     decoder = decoder.to(device)
-    chatbot = ChatBot(pretrained_model, decoder, tokenizer, bos, eos, device)
-    chatbot.eval()
+    chatbot = FineTuneTransformer(pretrained_model, decoder, hidden_size, bos, eos)
     input_ = input()
     while input_ != "q":
         output = chatbot.forward(**tokenizer(input_, return_tensors="pt"))
