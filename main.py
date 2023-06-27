@@ -55,7 +55,6 @@ def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, dim_emb, max
           optimizer.step()
           total_loss += loss.item()
 
-          print(pooled.size(), encoding.size(), src_padding_mask.size())
           memories.append(torch.unsqueeze(encoding, dim=0))
           keys.append(torch.unsqueeze(pooled, dim=0))
           memory_masks.append(torch.unsqueeze(src_padding_mask, dim=0))
@@ -76,8 +75,6 @@ pretrained_model.eval()
 pretrained_model.requires_grad_(False)
 hidden_size = config.hidden_size
 vocab_size = config.vocab_size
-print(hidden_size, vocab_size)
-print(input())
 bos = 101
 eos = 102
 max_len = 271 #541 with spaces
