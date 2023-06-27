@@ -90,7 +90,7 @@ class FineTuneTransformer(nn.Module):
         with torch.no_grad():
             encoding = self.encode(input_ids, attention_mask, token_type_ids)
             out_seq = [[self.BOS]]
-            while out_seq[0][-1] != self.EOS or len(out_seq[0] > 200):
+            while out_seq[0][-1] != self.EOS or len(out_seq[0]) > 271:
                 tgt = self.embed(torch.tensor(out_seq, dtype=torch.long, device=self.device))
                 #print(tgt.size())
                 #No tgt_padding_maks. We are making tgt
