@@ -41,14 +41,14 @@ def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, dim_emb, max
           #Working with tgt = (batch, seq, embed_size)
           truth = tgt[:, 1:]
           tgt = tgt[:, :-1]
-          tgt_mask = nn.Transformer.generate_square_subsequent_mask(tgt.size()[1]).bool().to(device)
+          tgt_mask = nn.Transformer.generate_square_subsequent_mask(tgt.size()[1]).to(torch.float32).to(device)
 
           embedded_tgt = embed_fn(tgt)
           probabilities = decoder(embedded_tgt, encoding, src_padding_mask.to(torch.float32),
                                   torch.concat(memories, dim=1), torch.concat(keys, dim=1), 
                                   torch.concat(memory_masks, dim=0), tgt_mask, tgt_padding_mask.to(torch.float32))
 
-          loss = loss_fn(torch.transpose(probabilities, 1, 2), truth) #need (batches, classes, seq). Before transpose, is (bathces, seq, classes)
+          loss = loss_fn(torch.transpose(probabilities, 1, 2), truth) #need (batches, classes, seq). Before transpose, is (batches, seq, classes)
           loss.backward()
           #torch.nn.utils.clip_grad_value_(model.parameters(), 5.0)
 
@@ -82,7 +82,7 @@ memory_limit = 166
 config.pad_token_id = 0
 
 data = load_dataset('silver/personal_dialog')
-train_data = process_data(data['train'], tokenizer, 40000, max_len = max_len)
+train_data = process_data(data['train'], tokenizer, 1000, max_len = max_len)
 decoder_layer = nn.TransformerDecoderLayer(d_model=hidden_size, nhead=8, batch_first=True)
 norm_layer = nn.LayerNorm(hidden_size)
 decoder = ManualDecoder(decoder_layer, 3, True, hidden_size, vocab_size, pooling_fn)
