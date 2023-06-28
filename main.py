@@ -17,7 +17,7 @@ def pooling_fn(a):
 def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, dim_emb, max_len, device="cuda"):
   base_llm = base_llm.to(device)
   decoder = decoder.to(device)
-  optimizer = torch.optim.SGD(decoder.parameters(), lr=0.01)
+  optimizer = torch.optim.AdamW(decoder.parameters(), lr=0.01)
   loss_fn = torch.nn.CrossEntropyLoss(ignore_index=PAD_IDX) #Ignore padding, dont let it contribute to training
   embed_fn = base_llm.get_input_embeddings()
   memories = [torch.zeros((1, 1, max_len, dim_emb), device=device)] #want (batch_size, n_mems, seq_len, dim_emb)
@@ -78,6 +78,7 @@ vocab_size = config.vocab_size
 bos = 101
 eos = 102
 max_len = 271 #541 with spaces
+memory_limit = 166
 config.pad_token_id = 0
 
 data = load_dataset('silver/personal_dialog')
