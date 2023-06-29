@@ -14,15 +14,15 @@ def upper_tri_mask(n):
 def pooling_fn(a):
   return torch.mean(a, dim=-2)
 
-def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, dim_emb, max_len, device="cuda"):
+def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, dim_emb, max_len, bsz, device="cuda"):
   base_llm = base_llm.to(device)
   decoder = decoder.to(device)
   optimizer = torch.optim.AdamW(decoder.parameters(), lr=0.01)
   loss_fn = torch.nn.CrossEntropyLoss(ignore_index=PAD_IDX) #Ignore padding, dont let it contribute to training
   embed_fn = base_llm.get_input_embeddings()
-  memories = [torch.zeros((1, 1, max_len, dim_emb), device=device)] #want (batch_size, n_mems, seq_len, dim_emb)
-  memory_masks = [torch.ones((1, 1, max_len), device=device)] # (n_mems, batch_size, seq_len) or (n_mems, seq_len) to apply to entre batch
-  keys = [torch.zeros((1, 1, dim_emb), device=device)] # (batch_size, n_mes, dim_emb)
+  memories = [torch.zeros((bsz, 1, max_len, dim_emb), device=device)] #want (batch_size, n_mems, seq_len, dim_emb)
+  memory_masks = [torch.ones((1, bsz, max_len), device=device)] # (n_mems, batch_size, seq_len) or (n_mems, seq_len) to apply to entre batch
+  keys = [torch.zeros((bsz, 1, dim_emb), device=device)] # (batch_size, n_mes, dim_emb)
   for epoch in range(1, num_epochs+1):
     decoder.train()
     total_loss = 0
@@ -80,19 +80,20 @@ eos = 102
 max_len = 271 #541 with spaces
 memory_limit = 166
 config.pad_token_id = 0
+bsz = 9
 
 data = load_dataset('silver/personal_dialog')
-train_data = process_data(data['train'], tokenizer, 1000, max_len = max_len, bsz = 8)
+train_data = process_data(data['train'], tokenizer, 1000, max_len = max_len, bsz = bsz)
 decoder_layer = nn.TransformerDecoderLayer(d_model=hidden_size, nhead=8, batch_first=True)
 norm_layer = nn.LayerNorm(hidden_size)
 decoder = ManualDecoder(decoder_layer, 3, True, hidden_size, vocab_size, pooling_fn)
 
-decoder = train(pretrained_model, decoder, train_data, 10, config.pad_token_id, hidden_size, max_len, device)
+decoder = train(pretrained_model, decoder, train_data, 10, config.pad_token_id, hidden_size, max_len, bsz, device)
 torch.save(decoder.state_dict(), "decoder10")
-decoder = train(pretrained_model, decoder, train_data, 10, config.pad_token_id, hidden_size, max_len, device)
+decoder = train(pretrained_model, decoder, train_data, 10, config.pad_token_id, hidden_size, max_len, bsz, device)
 torch.save(decoder.state_dict(), "decoder20")
-decoder = train(pretrained_model, decoder, train_data, 10, config.pad_token_id, hidden_size, max_len, device)
+decoder = train(pretrained_model, decoder, train_data, 10, config.pad_token_id, hidden_size, max_len, bsz, device)
 torch.save(decoder.state_dict(), "decoder30")
-decoder = train(pretrained_model, decoder, train_data, 10, config.pad_token_id, hidden_size, max_len, device)
+decoder = train(pretrained_model, decoder, train_data, 10, config.pad_token_id, hidden_size, max_len, bsz, device)
 torch.save(decoder.state_dict(), "decoder40")
 chatbot = FineTuneTransformer(pretrained_model, decoder, bos, eos, device)
