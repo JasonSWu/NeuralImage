@@ -57,8 +57,8 @@ def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, dim_emb, max
           optimizer.step()
           total_loss += loss.item()
 
-          memories.append(torch.unsqueeze(encoding, dim=0))
-          keys.append(torch.unsqueeze(pooled, dim=0))
+          memories.append(torch.transpose(torch.unsqueeze(encoding, dim=0), 0,1))
+          keys.append(torch.transpose(torch.unsqueeze(pooled, dim=0),0,1))
           memory_masks.append(torch.unsqueeze(src_padding_mask, dim=0))
         del memories[1:]
         del memory_masks[1:]
