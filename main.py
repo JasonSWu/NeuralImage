@@ -82,7 +82,7 @@ memory_limit = 166
 config.pad_token_id = 0
 
 data = load_dataset('silver/personal_dialog')
-train_data = process_data(data['train'], tokenizer, 1000, max_len = max_len)
+train_data = process_data(data['train'], tokenizer, 1000, max_len = max_len, bsz = 8)
 decoder_layer = nn.TransformerDecoderLayer(d_model=hidden_size, nhead=8, batch_first=True)
 norm_layer = nn.LayerNorm(hidden_size)
 decoder = ManualDecoder(decoder_layer, 3, True, hidden_size, vocab_size, pooling_fn)
