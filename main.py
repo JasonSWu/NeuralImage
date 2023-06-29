@@ -43,7 +43,6 @@ def train(base_llm, decoder, optimizer, loss_fn, train_dataloader, num_epochs, d
           tgt_mask = nn.Transformer.generate_square_subsequent_mask(tgt.size()[1]).to(device)
 
           embedded_tgt = embed_fn(tgt)
-          print(src_padding_mask, tgt_padding_mask, tgt_mask)
           probabilities = decoder(embedded_tgt, encoding, src_padding_mask.to(torch.float32),
                                   torch.concat(memories, dim=1), torch.concat(keys, dim=1), 
                                   torch.concat(memory_masks, dim=0), tgt_mask, tgt_padding_mask.to(torch.float32))
