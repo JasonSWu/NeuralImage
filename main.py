@@ -6,7 +6,7 @@ from transformers import AutoConfig, AutoTokenizer, AutoModelForCausalLM
 from model import ChatBot, MyDecoder
 from model2 import FineTuneTransformer, ManualDecoder
 from data import process_data
-import os
+import os, sys
 
 def upper_tri_mask(n):
   return torch.triu(torch.ones((n,n)), diagonal=1)
@@ -14,10 +14,10 @@ def upper_tri_mask(n):
 def pooling_fn(a):
   return torch.mean(a, dim=-2)
 
-def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, dim_emb, max_len, bsz, device="cuda"):
+def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, dim_emb, max_len, bsz, lr, device="cuda"):
   base_llm = base_llm.to(device)
   decoder = decoder.to(device)
-  optimizer = torch.optim.AdamW(decoder.parameters(), lr=0.01)
+  optimizer = torch.optim.AdamW(decoder.parameters(), lr=lr)
   loss_fn = torch.nn.CrossEntropyLoss(ignore_index=PAD_IDX) #Ignore padding, dont let it contribute to training
   embed_fn = base_llm.get_input_embeddings()
   memories = [torch.zeros((bsz, 1, max_len, dim_emb), device=device)] #want (batch_size, n_mems, seq_len, dim_emb)
@@ -66,34 +66,38 @@ def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, dim_emb, max
     print((f"Epoch: {epoch}, Train loss: {train_loss:.3f}"))
   return decoder
 
-device = torch.device("cuda")
+def main(train_size, lr):
+  device = torch.device("cuda")
 
-config = AutoConfig.from_pretrained("Alethea/GPT2-chitchat")
-tokenizer = AutoTokenizer.from_pretrained("Alethea/GPT2-chitchat")
-pretrained_model = AutoModelForCausalLM.from_pretrained("Alethea/GPT2-chitchat").base_model
-pretrained_model.eval()
-pretrained_model.requires_grad_(False)
-hidden_size = config.hidden_size
-vocab_size = config.vocab_size
-bos = 101
-eos = 102
-max_len = 271 #541 with spaces
-memory_limit = 166
-config.pad_token_id = 0
-bsz = 9
+  config = AutoConfig.from_pretrained("Alethea/GPT2-chitchat")
+  tokenizer = AutoTokenizer.from_pretrained("Alethea/GPT2-chitchat")
+  pretrained_model = AutoModelForCausalLM.from_pretrained("Alethea/GPT2-chitchat").base_model
+  pretrained_model.eval()
+  pretrained_model.requires_grad_(False)
+  hidden_size = config.hidden_size
+  vocab_size = config.vocab_size
+  bos = 101
+  eos = 102
+  max_len = 271 #541 with spaces
+  memory_limit = 166
+  config.pad_token_id = 0
+  bsz = 9
 
-data = load_dataset('silver/personal_dialog')
-train_data = process_data(data['train'], tokenizer, 1000, max_len = max_len, bsz = bsz)
-decoder_layer = nn.TransformerDecoderLayer(d_model=hidden_size, nhead=8, batch_first=True)
-norm_layer = nn.LayerNorm(hidden_size)
-decoder = ManualDecoder(decoder_layer, 3, True, hidden_size, vocab_size, pooling_fn)
+  data = load_dataset('silver/personal_dialog')
+  train_data = process_data(data['train'], tokenizer, train_size, max_len = max_len, bsz = bsz)
+  decoder_layer = nn.TransformerDecoderLayer(d_model=hidden_size, nhead=8, batch_first=True)
+  norm_layer = nn.LayerNorm(hidden_size)
+  decoder = ManualDecoder(decoder_layer, 3, True, hidden_size, vocab_size, pooling_fn)
 
-decoder = train(pretrained_model, decoder, train_data, 10, config.pad_token_id, hidden_size, max_len, bsz, device)
-torch.save(decoder.state_dict(), "decoder10")
-decoder = train(pretrained_model, decoder, train_data, 10, config.pad_token_id, hidden_size, max_len, bsz, device)
-torch.save(decoder.state_dict(), "decoder20")
-decoder = train(pretrained_model, decoder, train_data, 10, config.pad_token_id, hidden_size, max_len, bsz, device)
-torch.save(decoder.state_dict(), "decoder30")
-decoder = train(pretrained_model, decoder, train_data, 10, config.pad_token_id, hidden_size, max_len, bsz, device)
-torch.save(decoder.state_dict(), "decoder40")
-chatbot = FineTuneTransformer(pretrained_model, decoder, bos, eos, device)
+  decoder = train(pretrained_model, decoder, train_data, 10, config.pad_token_id, hidden_size, max_len, bsz, lr, device)
+  torch.save(decoder.state_dict(), "decoder10")
+  decoder = train(pretrained_model, decoder, train_data, 10, config.pad_token_id, hidden_size, max_len, bsz, lr, device)
+  torch.save(decoder.state_dict(), "decoder20")
+  decoder = train(pretrained_model, decoder, train_data, 10, config.pad_token_id, hidden_size, max_len, bsz, lr, device)
+  torch.save(decoder.state_dict(), "decoder30")
+  decoder = train(pretrained_model, decoder, train_data, 10, config.pad_token_id, hidden_size, max_len, bsz, lr, device)
+  torch.save(decoder.state_dict(), "decoder40")
+  chatbot = FineTuneTransformer(pretrained_model, decoder, bos, eos, device)
+
+if __name__ == "__main__":
+    main(sys.argv[1], sys.argv[2])
