@@ -52,7 +52,7 @@ def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, dim_emb, max
 
           loss = loss_fn(torch.transpose(probabilities, 1, 2), truth) #need (batches, classes, seq). Before transpose, is (batches, seq, classes)
           loss.backward()
-          #torch.nn.utils.clip_grad_value_(model.parameters(), 5.0)
+          #torch.nn.utils.clip_grad_value_(model.arameters(), 5.0)
 
           optimizer.step()
           total_loss += loss.item()
