@@ -22,7 +22,7 @@ def process_data(dataset, tokenizer, n, max_len, bsz):
         if len_ not in lens:
             lens.add(len_)
             tmp[len_] = list()
-        tmp[len_].append(dialogue.replace(" ",""))
+        tmp[len_].append([sent.replace(" ","") for sent in dialogue])
         count += 1
     count = 0
     for len_ in lens:
