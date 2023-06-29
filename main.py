@@ -85,7 +85,6 @@ def main(train_size, lr):
   data = load_dataset('silver/personal_dialog')
   train_data = process_data(data['train'], tokenizer, train_size, max_len = max_len, bsz = bsz)
   decoder_layer = nn.TransformerDecoderLayer(d_model=hidden_size, nhead=8, batch_first=True)
-  norm_layer = nn.LayerNorm(hidden_size)
   decoder = ManualDecoder(decoder_layer, 3, True, hidden_size, vocab_size, pooling_fn)
   optimizer = torch.optim.AdamW(decoder.parameters(), lr=lr)
   loss_fn = torch.nn.CrossEntropyLoss(ignore_index=config.pad_token_id) #Ignore padding, dont let it contribute to training
