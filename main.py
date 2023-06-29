@@ -100,4 +100,4 @@ def main(train_size, lr):
   chatbot = FineTuneTransformer(pretrained_model, decoder, bos, eos, device)
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2])
+    main(int(sys.argv[1]), float(sys.argv[2]))
