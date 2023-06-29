@@ -12,9 +12,9 @@ def clones(module, N):
 class Memory(nn.Module):
     def __init__(self, dim, batched=False):
         super(Memory, self).__init__()
-        self.lin = nn.Linear(dim, dim)
+        self.lin = nn.Linear(dim, 3 * dim)
         self.relu = nn.LeakyReLU(negative_slope=0.1)
-        self.lin2 = nn.Linear(dim, dim)
+        self.lin2 = nn.Linear(3 * dim, dim)
         self.softmax = nn.Softmax()
         self.batched = batched
     def forward(self, pooled_output, memories, keys):
@@ -44,10 +44,10 @@ class ManualDecoder(nn.Module):
         #tgt(bsz, max_seq-1, emb); encoded(bsz, max_seq, emb); memories(n_mems, bsz, max_seq, emb);
         #mem_keys(n_mems, bsz, emb); memory_padding_masks(n_mems, bsz, max_seq); tgt_mask(bsz, max_seq-1, max_seq-1);
         #tgt_padding_mask(bsz, max_seq-1)
-        memories = self.memory_layer(self.pooler(encoded), memories, mem_keys)
+        #memories = self.memory_layer(self.pooler(encoded), memories, mem_keys)
         output = self.layer(tgt, encoded, tgt_mask=tgt_mask, tgt_key_padding_mask=tgt_padding_mask)
-        for mem, mem_pad_mask in zip(memories, memory_padding_masks):
-            output = self.layer.forward(output, mem, tgt_mask, tgt_key_padding_mask = tgt_padding_mask, memory_key_padding_mask = mem_pad_mask)
+        #for mem, mem_pad_mask in zip(memories, memory_padding_masks):
+        #    output = self.layer.forward(output, mem, tgt_mask, tgt_key_padding_mask = tgt_padding_mask, memory_key_padding_mask = mem_pad_mask)
         for layer in self.layers:
             output = layer.forward(output, encoded, tgt_mask, tgt_key_padding_mask = tgt_padding_mask, memory_key_padding_mask = src_padding_mask)
         return self.lin(self.norm(output))
