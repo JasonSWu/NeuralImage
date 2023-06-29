@@ -13,6 +13,8 @@ class Memory(nn.Module):
     def __init__(self, dim, batched=False):
         super(Memory, self).__init__()
         self.lin = nn.Linear(dim, dim)
+        self.relu = nn.LeakyReLU(negative_slope=0.1)
+        self.lin2 = nn.Linear(dim, dim)
         self.softmax = nn.Softmax()
         self.batched = batched
     def forward(self, pooled_output, memories, keys):
@@ -20,7 +22,7 @@ class Memory(nn.Module):
         #memories: (n, mems, seq, dim) or (mems, seq, dim)
         #pooled_output: (n, dim) or (dim)
         n_mems = memories.size()[-3]
-        to_dot = self.lin(pooled_output)
+        to_dot = self.lin2(self.relu(self.lin(pooled_output)))
         to_dot = torch.unsqueeze(to_dot, dim=-2).repeat([1, n_mems, 1] if self.batched else [n_mems, 1])
         #to_dot (n, mems, dim) or (mems, dim)
         weights = torch.softmax(torch.sum(to_dot * keys, dim=-1), dim=-1) * n_mems #dot product along last dimension
