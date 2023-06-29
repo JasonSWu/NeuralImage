@@ -1,22 +1,36 @@
 from datasets import load_dataset, Dataset
+from collections import defaultdict
 from transformers import AutoTokenizer
 import torch
 from tqdm import tqdm
 
-def process_data(dataset, tokenizer, n, max_len):
+def process_data(dataset, tokenizer, n, max_len, bsz):
     dialogue = None
+    tmp = dict()
+    lens = set()
     out = []
     count = 0
     for entry in tqdm(dataset):
         if count > n:
             break
-        if len(entry['uid']) < 3:
+        len_ = len(entry['uid'])
+        if len_ < 3:
             continue
         dialogue = entry['dialog']
         #profiles = entry['profile']
         #uids = entry['uid']
-        tokenized = [tokenizer(sentence.replace(" ", ""), return_tensors="pt", padding = 'max_length', max_length = max_len) for sentence in dialogue]
-        out.append(tokenized)
+        if len_ not in lens:
+            lens.add(len_)
+            tmp[len_] = list()
+        tmp[len_].append(dialogue.replace(" ",""))
         count += 1
+    count = 0
+    for len_ in lens:
+        dialogues = tmp[len_]
+        n_dialogues = len(dialogues)
+        while count + bsz <= n_dialogues:
+            out.append([tokenizer.batch_encode_plus(batch, padding="max_length", truncate=True, max_length=max_len)
+                         for batch in zip(*dialogues[count:count+bsz])])
+            count += bsz
     return out
     
