@@ -29,7 +29,7 @@ def process_data(dataset, tokenizer, n, max_len, bsz):
         dialogues = tmp[len_]
         n_dialogues = len(dialogues)
         while count + bsz <= n_dialogues:
-            out.append([tokenizer.batch_encode_plus(batch, padding="max_length", truncate=True, max_length=max_len)
+            out.append([tokenizer.batch_encode_plus(batch, padding="max_length", truncation=True, max_length=max_len)
                          for batch in zip(*dialogues[count:count+bsz])])
             count += bsz
     return out
