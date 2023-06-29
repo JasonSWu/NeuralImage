@@ -14,11 +14,10 @@ def upper_tri_mask(n):
 def pooling_fn(a):
   return torch.mean(a, dim=-2)
 
-def train(base_llm, decoder, train_dataloader, num_epochs, PAD_IDX, dim_emb, max_len, bsz, lr, device="cuda"):
+def train(base_llm, decoder, optimizer, loss_fn, train_dataloader, num_epochs, dim_emb, max_len, bsz, device="cuda"):
   base_llm = base_llm.to(device)
   decoder = decoder.to(device)
-  optimizer = torch.optim.AdamW(decoder.parameters(), lr=lr)
-  loss_fn = torch.nn.CrossEntropyLoss(ignore_index=PAD_IDX) #Ignore padding, dont let it contribute to training
+  optimizer = optimizer
   embed_fn = base_llm.get_input_embeddings()
   memories = [torch.zeros((bsz, 1, max_len, dim_emb), device=device)] #want (batch_size, n_mems, seq_len, dim_emb)
   memory_masks = [torch.ones((1, bsz, max_len), device=device)] # (n_mems, batch_size, seq_len) or (n_mems, seq_len) to apply to entre batch
@@ -88,14 +87,16 @@ def main(train_size, lr):
   decoder_layer = nn.TransformerDecoderLayer(d_model=hidden_size, nhead=8, batch_first=True)
   norm_layer = nn.LayerNorm(hidden_size)
   decoder = ManualDecoder(decoder_layer, 3, True, hidden_size, vocab_size, pooling_fn)
+  optimizer = torch.optim.AdamW(decoder.parameters(), lr=lr)
+  loss_fn = torch.nn.CrossEntropyLoss(ignore_index=config.pad_token_id) #Ignore padding, dont let it contribute to training
 
-  decoder = train(pretrained_model, decoder, train_data, 10, config.pad_token_id, hidden_size, max_len, bsz, lr, device)
+  decoder = train(pretrained_model, decoder, optimizer, loss_fn, train_data, 10, hidden_size, max_len, bsz, lr, device)
   torch.save(decoder.state_dict(), "decoder10")
-  decoder = train(pretrained_model, decoder, train_data, 10, config.pad_token_id, hidden_size, max_len, bsz, lr, device)
+  decoder = train(pretrained_model, decoder, optimizer, loss_fn, train_data, 10, hidden_size, max_len, bsz, lr, device)
   torch.save(decoder.state_dict(), "decoder20")
-  decoder = train(pretrained_model, decoder, train_data, 10, config.pad_token_id, hidden_size, max_len, bsz, lr, device)
+  decoder = train(pretrained_model, decoder, optimizer, loss_fn, train_data, 10, hidden_size, max_len, bsz, lr, device)
   torch.save(decoder.state_dict(), "decoder30")
-  decoder = train(pretrained_model, decoder, train_data, 10, config.pad_token_id, hidden_size, max_len, bsz, lr, device)
+  decoder = train(pretrained_model, decoder, optimizer, loss_fn, train_data, 10, hidden_size, max_len, bsz, lr, device)
   torch.save(decoder.state_dict(), "decoder40")
   chatbot = FineTuneTransformer(pretrained_model, decoder, bos, eos, device)
 
