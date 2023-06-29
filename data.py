@@ -32,5 +32,6 @@ def process_data(dataset, tokenizer, n, max_len, bsz):
             out.append([tokenizer.batch_encode_plus(batch, padding="max_length", truncation=True, max_length=max_len, return_tensors="pt")
                          for batch in zip(*dialogues[count:count+bsz])])
             count += bsz
+        count = 0
     return out
     
