@@ -90,13 +90,13 @@ def main(train_size, lr):
   optimizer = torch.optim.AdamW(decoder.parameters(), lr=lr)
   loss_fn = torch.nn.CrossEntropyLoss(ignore_index=config.pad_token_id) #Ignore padding, dont let it contribute to training
 
-  decoder = train(pretrained_model, decoder, optimizer, loss_fn, train_data, 10, hidden_size, max_len, bsz, lr, device)
+  decoder = train(pretrained_model, decoder, optimizer, loss_fn, train_data, 10, hidden_size, max_len, bsz, device)
   torch.save(decoder.state_dict(), "decoder10")
-  decoder = train(pretrained_model, decoder, optimizer, loss_fn, train_data, 10, hidden_size, max_len, bsz, lr, device)
+  decoder = train(pretrained_model, decoder, optimizer, loss_fn, train_data, 10, hidden_size, max_len, bsz, device)
   torch.save(decoder.state_dict(), "decoder20")
-  decoder = train(pretrained_model, decoder, optimizer, loss_fn, train_data, 10, hidden_size, max_len, bsz, lr, device)
+  decoder = train(pretrained_model, decoder, optimizer, loss_fn, train_data, 10, hidden_size, max_len, bsz, device)
   torch.save(decoder.state_dict(), "decoder30")
-  decoder = train(pretrained_model, decoder, optimizer, loss_fn, train_data, 10, hidden_size, max_len, bsz, lr, device)
+  decoder = train(pretrained_model, decoder, optimizer, loss_fn, train_data, 10, hidden_size, max_len, bsz, device)
   torch.save(decoder.state_dict(), "decoder40")
   chatbot = FineTuneTransformer(pretrained_model, decoder, bos, eos, device)
 
