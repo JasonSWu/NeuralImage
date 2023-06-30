@@ -81,7 +81,7 @@ def main(train_size, lr=0.0002):
   max_len = 271 #541 with spaces
   memory_limit = 166
   config.pad_token_id = 0
-  bsz = 1
+  bsz = 8
 
   data = load_dataset('silver/personal_dialog')
   train_data = process_data(data['train'], tokenizer, train_size, max_len = max_len, bsz = bsz)
