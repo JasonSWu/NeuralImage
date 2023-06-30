@@ -52,6 +52,7 @@ def train(base_llm, decoder, optimizer, loss_fn, train_dataloader, num_epochs, d
           #torch.nn.utils.clip_grad_value_(model.parameters(), 5.0)
 
           optimizer.step()
+          print(loss.item())
           total_loss += loss.item()
 
           memories.append(torch.transpose(torch.unsqueeze(encoding, dim=0), 0,1))
@@ -65,7 +66,7 @@ def train(base_llm, decoder, optimizer, loss_fn, train_dataloader, num_epochs, d
     print((f"Epoch: {epoch}, Train loss: {train_loss:.3f}"))
   return decoder
 
-def main(train_size, lr):
+def main(train_size, lr=0.0002):
   device = torch.device("cuda")
 
   config = AutoConfig.from_pretrained("Alethea/GPT2-chitchat")
