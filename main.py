@@ -97,6 +97,7 @@ def main(train_size, lr=0.0002):
   torch.save(decoder.state_dict(), "decoder30")
   decoder = train(pretrained_model, decoder, optimizer, loss_fn, train_data, 10, hidden_size, max_len, bsz, device)
   torch.save(decoder.state_dict(), "decoder40")
+  torch.save(optimizer.state_dict(), "optimizer")
   chatbot = FineTuneTransformer(pretrained_model, decoder, bos, eos, device)
 
 if __name__ == "__main__":

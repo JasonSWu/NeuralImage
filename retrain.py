@@ -65,7 +65,7 @@ def train(base_llm, decoder, optimizer, loss_fn, train_dataloader, num_epochs, d
     print((f"Epoch: {epoch}, Train loss: {train_loss:.3f}"))
   return decoder
 
-def main(trained, to_train, train_size, lr):
+def main(trained, to_train, train_size, lr, optimizer=None):
   device = torch.device("cuda")
 
   config = AutoConfig.from_pretrained("Alethea/GPT2-chitchat")
@@ -87,6 +87,7 @@ def main(trained, to_train, train_size, lr):
   decoder_layer = nn.TransformerDecoderLayer(d_model=hidden_size, nhead=8, batch_first=True)
   decoder = ManualDecoder(decoder_layer, 3, True, hidden_size, vocab_size, pooling_fn)
   optimizer = torch.optim.AdamW(decoder.parameters(), lr=lr)
+  optimizer.load_state_dict(torch.load(f"./{optimizer}"))
   loss_fn = torch.nn.CrossEntropyLoss(ignore_index=config.pad_token_id) #Ignore padding, dont let it contribute to training
   decoder.load_state_dict(torch.load(f"./decoder{trained}"))
   decoder = train(pretrained_model, decoder, optimizer, loss_fn, train_data, to_train, hidden_size, max_len, bsz, device)
@@ -94,7 +95,10 @@ def main(trained, to_train, train_size, lr):
   torch.save(decoder.state_dict(), f"decoder{trained + to_train}")
 
 if __name__ == "__main__":
-    if len(sys.argv) != 5:
-        print("Input the num epochs already trained, the desired number of epochs to train, train size, and the learning rate")
+    if len(sys.argv) < 5 or len(sys.argv) > 6:
+        print("Input the num epochs already trained, the desired number of epochs to train, train size, and the learning rate. Optional: input name of optimizer file last")
         exit(0)
-    main(int(sys.argv[1]), int(sys.argv[2]), int(sys.argv[3]), float(sys.argv[4]))
+    if len(sys.argv) == 5:
+      main(int(sys.argv[1]), int(sys.argv[2]), int(sys.argv[3]), float(sys.argv[4]))
+    if len(sys.argv) == 6:
+      main(int(sys.argv[1]), int(sys.argv[2]), int(sys.argv[3]), float(sys.argv[4]), sys.argv[5])
