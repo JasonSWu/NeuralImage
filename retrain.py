@@ -88,8 +88,7 @@ def main(trained, to_train, train_size, lr, optim_file=None):
   decoder = ManualDecoder(decoder_layer, 3, True, hidden_size, vocab_size, pooling_fn)
   decoder.load_state_dict(torch.load(f"./decoder{trained}"))
   optimizer = torch.optim.AdamW(decoder.parameters(), lr=lr)
-  if not optim_file is None:
-    optimizer.load_state_dict(torch.load(f"./{optim_file}"))
+  optimizer.load_state_dict(torch.load(f"./{trained}"))
   loss_fn = torch.nn.CrossEntropyLoss(ignore_index=config.pad_token_id) #Ignore padding, dont let it contribute to training
   decoder = train(pretrained_model, decoder, optimizer, loss_fn, train_data, to_train, hidden_size, max_len, bsz, device)
   decoder.eval()
@@ -97,10 +96,8 @@ def main(trained, to_train, train_size, lr, optim_file=None):
   torch.save(optimizer.state_dict(), f"optimizer{trained + to_train}")
 
 if __name__ == "__main__":
-    if len(sys.argv) < 5 or len(sys.argv) > 6:
+    if len(sys.argv) != 5:
         print("Input the num epochs already trained, the desired number of epochs to train, train size, and the learning rate. Optional: input name of optimizer file last")
         exit(0)
     if len(sys.argv) == 5:
       main(int(sys.argv[1]), int(sys.argv[2]), int(sys.argv[3]), float(sys.argv[4]))
-    if len(sys.argv) == 6:
-      main(int(sys.argv[1]), int(sys.argv[2]), int(sys.argv[3]), float(sys.argv[4]), sys.argv[5])
