@@ -65,8 +65,7 @@ def train(base_llm, decoder, optimizer, loss_fn, train_dataloader, num_epochs, d
     print((f"Epoch: {epoch}, Train loss: {train_loss:.3f}"))
   return decoder
 
-def main(trained, to_train, train_size, lr, optimizer=None):
-  print(optimizer)
+def main(trained, to_train, train_size, lr, optim_file=None):
   device = torch.device("cuda")
 
   config = AutoConfig.from_pretrained("Alethea/GPT2-chitchat")
@@ -89,9 +88,8 @@ def main(trained, to_train, train_size, lr, optimizer=None):
   decoder = ManualDecoder(decoder_layer, 3, True, hidden_size, vocab_size, pooling_fn)
   decoder.load_state_dict(torch.load(f"./decoder{trained}"))
   optimizer = torch.optim.AdamW(decoder.parameters(), lr=lr)
-  if not optimizer is None:
-    print("huh?")
-    optimizer.load_state_dict(torch.load(f"./{optimizer}"))
+  if not optim_file is None:
+    optimizer.load_state_dict(torch.load(f"./{optim_file}"))
   loss_fn = torch.nn.CrossEntropyLoss(ignore_index=config.pad_token_id) #Ignore padding, dont let it contribute to training
   decoder = train(pretrained_model, decoder, optimizer, loss_fn, train_data, to_train, hidden_size, max_len, bsz, device)
   decoder.eval()
