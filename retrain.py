@@ -94,6 +94,7 @@ def main(trained, to_train, train_size, lr, optim_file=None):
   decoder = train(pretrained_model, decoder, optimizer, loss_fn, train_data, to_train, hidden_size, max_len, bsz, device)
   decoder.eval()
   torch.save(decoder.state_dict(), f"decoder{trained + to_train}")
+  torch.save(optimizer.state_dict(), f"optimizer{trained + to_train}")
 
 if __name__ == "__main__":
     if len(sys.argv) < 5 or len(sys.argv) > 6:
