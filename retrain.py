@@ -86,11 +86,12 @@ def main(trained, to_train, train_size, lr, optimizer=None):
   train_data = process_data(data['train'], tokenizer, train_size, max_len = max_len, bsz = bsz)
   decoder_layer = nn.TransformerDecoderLayer(d_model=hidden_size, nhead=8, batch_first=True)
   decoder = ManualDecoder(decoder_layer, 3, True, hidden_size, vocab_size, pooling_fn)
+  decoder.load_state_dict(torch.load(f"./decoder{trained}"))
   optimizer = torch.optim.AdamW(decoder.parameters(), lr=lr)
   if optimizer is not None:
+    print("huh?")
     optimizer.load_state_dict(torch.load(f"./{optimizer}"))
   loss_fn = torch.nn.CrossEntropyLoss(ignore_index=config.pad_token_id) #Ignore padding, dont let it contribute to training
-  decoder.load_state_dict(torch.load(f"./decoder{trained}"))
   decoder = train(pretrained_model, decoder, optimizer, loss_fn, train_data, to_train, hidden_size, max_len, bsz, device)
   decoder.eval()
   torch.save(decoder.state_dict(), f"decoder{trained + to_train}")
