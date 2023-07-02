@@ -145,8 +145,7 @@ def main(trained, to_train, train_size, lr, val):
   torch.save(optimizer.state_dict(), f"optimizer{trained + to_train}")
 
 if __name__ == "__main__":
-    if len(sys.argv) != 5:
+    if len(sys.argv) != 6:
         print("Input: epochs trained, epochs to train, train size, learning rate, and whether to validate (\"True\" or \"False\")")
         exit(0)
-    if len(sys.argv) == 5:
-      main(int(sys.argv[1]), int(sys.argv[2]), int(sys.argv[3]), float(sys.argv[4]), sys.argv[5] == "True")
+    main(int(sys.argv[1]), int(sys.argv[2]), int(sys.argv[3]), float(sys.argv[4]), sys.argv[5] == "True")
