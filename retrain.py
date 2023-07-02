@@ -37,7 +37,7 @@ def validate(base_llm, decoder, loss_fn, val_dataloader, dim_emb, max_len, bsz, 
         #Working with tgt = (batch, seq, embed_size)
         truth = tgt[:, 1:]
         tgt = tgt[:, :-1]
-        tgt_mask = nn.Transformer.generate_square_subsequent_mask(tgt.size()[1]).to(device)
+        tgt_mask = nn.Transformer.generate_square_subsequent_mask(tgt.size()[1]).to(torch.bool).to(device)
 
         embedded_tgt = embed_fn(tgt)
         probabilities = decoder(embedded_tgt, encoding, src_padding_mask.to(torch.bool),
