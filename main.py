@@ -111,7 +111,7 @@ def train(base_llm, decoder, optimizer, loss_fn, train_dataloader, num_epochs, d
       print(f"Epoch: {epoch}, Train loss: {train_loss:.3f}")
   return decoder
 
-def main(train_size, lr=0.0002):
+def main(train_size, val_size, lr=0.0002):
   device = torch.device("cuda")
 
   config = AutoConfig.from_pretrained("Alethea/GPT2-chitchat")
@@ -151,4 +151,4 @@ def main(train_size, lr=0.0002):
   torch.save(optimizer.state_dict(), "optimizer40")
 
 if __name__ == "__main__":
-    main(int(sys.argv[1]), float(sys.argv[2]))
+    main(int(sys.argv[1]), int(sys.argv[2]), float(sys.argv[3]))
