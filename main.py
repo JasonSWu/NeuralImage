@@ -62,7 +62,7 @@ def train(base_llm, decoder, optimizer, loss_fn, train_dataloader, num_epochs, d
         del keys[1:]
 
     train_loss = total_loss / total_replies
-    print((f"Epoch: {epoch}, Train loss: {train_loss:.3f}"))
+    print(f"Epoch: {epoch}, Train loss: {train_loss:.3f}")
   return decoder
 
 def main(train_size, lr=0.0002):
