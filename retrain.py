@@ -103,8 +103,7 @@ def train(base_llm, decoder, optimizer, loss_fn, train_dataloader, num_epochs, d
 
     train_loss = total_loss / total_replies
     if val:
-      with torch.no_grad():
-        val_loss = validate(base_llm, decoder, loss_fn, val_dataloader, dim_emb, max_len, bsz, device)
+      val_loss = validate(base_llm, decoder, loss_fn, val_dataloader, dim_emb, max_len, bsz, device)
       print(f"Epoch: {epoch}, Train loss: {train_loss:.3f}, Val loss: {val_loss:.3f}")
     else:
       print(f"Epoch: {epoch}, Train loss: {train_loss:.3f}")

@@ -80,7 +80,7 @@ def train(base_llm, decoder, optimizer, loss_fn, train_dataloader, num_epochs, d
           #Working with tgt = (batch, seq, embed_size)
           truth = tgt[:, 1:]
           tgt = tgt[:, :-1]
-          tgt_mask = nn.Transformer.generate_square_subsequent_mask(tgt.size()[1]).to(torch.bool).to(device)
+          tgt_mask = nn.Transformer.generate_square_subsequent_mask(tgt.size()[1]).to(device)
 
           embedded_tgt = embed_fn(tgt)
           probabilities = decoder(embedded_tgt, encoding, src_padding_mask.to(torch.float32),
@@ -103,8 +103,7 @@ def train(base_llm, decoder, optimizer, loss_fn, train_dataloader, num_epochs, d
 
     train_loss = total_loss / total_replies
     if val:
-      with torch.no_grad():
-        val_loss = validate(base_llm, decoder, loss_fn, val_dataloader, dim_emb, max_len, bsz, device)
+      val_loss = validate(base_llm, decoder, loss_fn, val_dataloader, dim_emb, max_len, bsz, device)
       print(f"Epoch: {epoch}, Train loss: {train_loss:.3f}, Val loss: {val_loss:.3f}")
     else:
       print(f"Epoch: {epoch}, Train loss: {train_loss:.3f}")
