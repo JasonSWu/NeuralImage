@@ -127,7 +127,7 @@ def main(train_size, lr=0.0002):
   memory_limit = 166
   config.pad_token_id = 0
   bsz = 8
-  val_size = 1000
+  val_size = 5000
 
   data = load_dataset('silver/personal_dialog')
   train_data = process_data(data['train'], tokenizer, train_size, max_len = max_len, bsz = bsz)
