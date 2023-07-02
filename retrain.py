@@ -40,9 +40,9 @@ def validate(base_llm, decoder, loss_fn, val_dataloader, dim_emb, max_len, bsz, 
         tgt_mask = nn.Transformer.generate_square_subsequent_mask(tgt.size()[1]).to(device)
 
         embedded_tgt = embed_fn(tgt)
-        probabilities = decoder(embedded_tgt, encoding, src_padding_mask.to(torch.float32),
+        probabilities = decoder(embedded_tgt, encoding, src_padding_mask.to(torch.bool),
                                 torch.concat(memories, dim=1), torch.concat(keys, dim=1), 
-                                torch.concat(memory_masks, dim=0), tgt_mask, tgt_padding_mask.to(torch.float32))
+                                torch.concat(memory_masks, dim=0), tgt_mask, tgt_padding_mask.to(torch.bool))
 
         loss = loss_fn(torch.transpose(probabilities, 1, 2), truth) #need (batches, classes, seq). Before transpose, is (batches, seq, classes)
         

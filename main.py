@@ -40,9 +40,9 @@ def validate(base_llm, decoder, loss_fn, val_dataloader, dim_emb, max_len, bsz, 
         tgt_mask = nn.Transformer.generate_square_subsequent_mask(tgt.size()[1]).to(device)
 
         embedded_tgt = embed_fn(tgt)
-        probabilities = decoder(embedded_tgt, encoding, src_padding_mask.to(torch.float32),
+        probabilities = decoder(embedded_tgt, encoding, src_padding_mask.to(torch.bool),
                                 torch.concat(memories, dim=1), torch.concat(keys, dim=1), 
-                                torch.concat(memory_masks, dim=0), tgt_mask, tgt_padding_mask.to(torch.float32))
+                                torch.concat(memory_masks, dim=0), tgt_mask, tgt_padding_mask.to(torch.bool))
 
         loss = loss_fn(torch.transpose(probabilities, 1, 2), truth) #need (batches, classes, seq). Before transpose, is (batches, seq, classes)
         
@@ -112,7 +112,7 @@ def train(base_llm, decoder, optimizer, loss_fn, train_dataloader, num_epochs, d
       print(f"Epoch: {epoch}, Train loss: {train_loss:.3f}")
   return decoder
 
-def main(train_size, lr=0.0002):
+def main(train_size, val_size, lr=0.0002):
   device = torch.device("cuda")
 
   config = AutoConfig.from_pretrained("Alethea/GPT2-chitchat")
@@ -128,7 +128,6 @@ def main(train_size, lr=0.0002):
   memory_limit = 166
   config.pad_token_id = 0
   bsz = 8
-  val_size = 5000
 
   data = load_dataset('silver/personal_dialog')
   train_data = process_data(data['train'], tokenizer, train_size, max_len = max_len, bsz = bsz)
@@ -152,4 +151,4 @@ def main(train_size, lr=0.0002):
   torch.save(optimizer.state_dict(), "optimizer40")
 
 if __name__ == "__main__":
-    main(int(sys.argv[1]), float(sys.argv[2]))
+    main(int(sys.argv[1]), int(sys.argv[2]), float(sys.argv[3]))
