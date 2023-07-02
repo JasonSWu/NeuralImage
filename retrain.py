@@ -17,7 +17,6 @@ def pooling_fn(a):
 def validate(base_llm, decoder, loss_fn, val_dataloader, dim_emb, max_len, bsz, device="cuda"):
   base_llm = base_llm.to(device)
   decoder = decoder.to(device)
-  optimizer = optimizer
   embed_fn = base_llm.get_input_embeddings()
   memories = [torch.zeros((bsz, 1, max_len, dim_emb), device=device)] #want (batch_size, n_mems, seq_len, dim_emb)
   memory_masks = [torch.ones((1, bsz, max_len), device=device)] # (n_mems, batch_size, seq_len) or (n_mems, seq_len) to apply to entre batch
