@@ -135,8 +135,8 @@ def main(trained, to_train, train_size, lr, val):
   decoder_layer = nn.TransformerDecoderLayer(d_model=hidden_size, nhead=8, batch_first=True)
   decoder = ManualDecoder(decoder_layer, 3, True, hidden_size, vocab_size, pooling_fn)
   decoder.load_state_dict(torch.load(f"./decoder{trained}"))
-  optimizer = torch.optim.SGD(decoder.parameters(), lr=lr)
-  optimizer.load_state_dict(torch.load(f"./optimizer{trained}"))
+  optimizer = torch.optim.AdamW(decoder.parameters(), lr=lr)
+  #optimizer.load_state_dict(torch.load(f"./optimizer{trained}"))
   loss_fn = torch.nn.CrossEntropyLoss(ignore_index=config.pad_token_id) #Ignore padding, dont let it contribute to training
   decoder = train(pretrained_model, decoder, optimizer, loss_fn, train_data, to_train, hidden_size, max_len, bsz, val, val_data, device)
   decoder.eval()
