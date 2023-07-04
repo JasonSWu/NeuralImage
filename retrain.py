@@ -126,14 +126,14 @@ def main(trained, to_train, train_size, lr, val):
   max_len = 271 #541 with spaces
   memory_limit = 166
   config.pad_token_id = 0
-  bsz = 8
+  bsz = 16
   val_size = 1000
 
   data = load_dataset('silver/personal_dialog')
   train_data = process_data(data['train'], tokenizer, train_size, max_len = max_len, bsz = bsz)
   val_data = process_data(data['validation'], tokenizer, val_size, max_len = max_len, bsz = bsz)
   decoder_layer = nn.TransformerDecoderLayer(d_model=hidden_size, nhead=8, batch_first=True)
-  decoder = ManualDecoder(decoder_layer, 3, True, hidden_size, vocab_size, pooling_fn)
+  decoder = ManualDecoder(decoder_layer, 6, True, hidden_size, vocab_size, pooling_fn)
   decoder.load_state_dict(torch.load(f"./decoder{trained}"))
   optimizer = torch.optim.SGD(decoder.parameters(), lr=lr)
   #optimizer.load_state_dict(torch.load(f"./optimizer{trained}"))

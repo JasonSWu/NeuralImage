@@ -126,14 +126,14 @@ def main(train_size, lr=0.0002):
   max_len = 271 #541 with spaces
   memory_limit = 166
   config.pad_token_id = 0
-  bsz = 8
+  bsz = 16
   val_size = 5000
 
   data = load_dataset('silver/personal_dialog')
   train_data = process_data(data['train'], tokenizer, train_size, max_len = max_len, bsz = bsz)
   val_data = process_data(data['validation'], tokenizer, val_size, max_len = max_len, bsz = bsz)
   decoder_layer = nn.TransformerDecoderLayer(d_model=hidden_size, nhead=8, batch_first=True)
-  decoder = ManualDecoder(decoder_layer, 3, True, hidden_size, vocab_size, pooling_fn)
+  decoder = ManualDecoder(decoder_layer, 6, True, hidden_size, vocab_size, pooling_fn)
   optimizer = torch.optim.AdamW(decoder.parameters(), lr=lr)
   loss_fn = torch.nn.CrossEntropyLoss(ignore_index=config.pad_token_id) #Ignore padding, dont let it contribute to training
 
