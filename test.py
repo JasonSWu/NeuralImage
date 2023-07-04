@@ -26,5 +26,5 @@ decoder = ManualDecoder(decoder_layer, 3, True, hidden_size, vocab_size, pooling
 optimizer = torch.optim.AdamW(decoder.parameters(), lr=0.1)
 a = input()
 while a != "q":
-    optimizer.load_state_dict(torch.load("./optimizer67"))
+    optimizer.load_state_dict(torch.load(f"./optimizer{a}"))
     print(optimizer.param_groups[0]['lr'])
