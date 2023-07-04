@@ -24,6 +24,7 @@ vocab_size = config.vocab_size
 decoder_layer = nn.TransformerDecoderLayer(d_model=hidden_size, nhead=8, batch_first=True)
 decoder = ManualDecoder(decoder_layer, 3, True, hidden_size, vocab_size, pooling_fn)
 optimizer = torch.optim.AdamW(decoder.parameters(), lr=0.1)
-optimizer.load_state_dict(torch.load("./optimizer80"))
-print(optimizer.param_groups[0]['lr'])
-loss_fn = torch.nn.CrossEntropyLoss(ignore_index=config.pad_token_id) #Ignore padding, dont let it contribute to training
+a = input()
+while a != "q":
+    optimizer.load_state_dict(torch.load("./optimizer67"))
+    print(optimizer.param_groups[0]['lr'])
