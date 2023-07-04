@@ -137,16 +137,16 @@ def main(train_size, lr=0.0002):
   optimizer = torch.optim.AdamW(decoder.parameters(), lr=lr)
   loss_fn = torch.nn.CrossEntropyLoss(ignore_index=config.pad_token_id) #Ignore padding, dont let it contribute to training
 
-  decoder = train(pretrained_model, decoder, optimizer, loss_fn, train_data, 10, hidden_size, max_len, bsz, True, val_data, device)
+  decoder = train(pretrained_model, decoder, optimizer, loss_fn, train_data, 10, hidden_size, max_len, bsz, False, val_data, device)
   torch.save(decoder.state_dict(), "decoder10")
   torch.save(optimizer.state_dict(), "optimizer10")
-  decoder = train(pretrained_model, decoder, optimizer, loss_fn, train_data, 10, hidden_size, max_len, bsz, True, val_data, device)
+  decoder = train(pretrained_model, decoder, optimizer, loss_fn, train_data, 10, hidden_size, max_len, bsz, False, val_data, device)
   torch.save(decoder.state_dict(), "decoder20")
   torch.save(optimizer.state_dict(), "optimizer20")
-  decoder = train(pretrained_model, decoder, optimizer, loss_fn, train_data, 10, hidden_size, max_len, bsz, True, val_data, device)
+  decoder = train(pretrained_model, decoder, optimizer, loss_fn, train_data, 10, hidden_size, max_len, bsz, False, val_data, device)
   torch.save(decoder.state_dict(), "decoder30")
   torch.save(optimizer.state_dict(), "optimizer30")
-  decoder = train(pretrained_model, decoder, optimizer, loss_fn, train_data, 10, hidden_size, max_len, bsz, True, val_data, device)
+  decoder = train(pretrained_model, decoder, optimizer, loss_fn, train_data, 10, hidden_size, max_len, bsz, False, val_data, device)
   torch.save(decoder.state_dict(), "decoder40")
   torch.save(optimizer.state_dict(), "optimizer40")
 
