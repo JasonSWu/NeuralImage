@@ -28,3 +28,4 @@ a = input()
 while a != "q":
     optimizer.load_state_dict(torch.load(f"./optimizer{a}"))
     print(optimizer.param_groups[0]['lr'])
+    a = input()
