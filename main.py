@@ -126,7 +126,7 @@ def main(train_size, lr=0.0002):
   max_len = 271 #541 with spaces
   memory_limit = 166
   config.pad_token_id = 0
-  bsz = 16
+  bsz = 32
   val_size = 5000
 
   data = load_dataset('silver/personal_dialog')
