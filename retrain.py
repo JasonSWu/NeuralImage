@@ -113,6 +113,7 @@ def train(base_llm, decoder, optimizer, loss_fn, train_dataloader, num_epochs, d
 
 def main(trained, to_train, train_size, lr, val):
   device = torch.device("cuda")
+  os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "max_split_size_mb:512"
 
   config = AutoConfig.from_pretrained("Alethea/GPT2-chitchat")
   tokenizer = AutoTokenizer.from_pretrained("Alethea/GPT2-chitchat")
