@@ -64,10 +64,9 @@ qa = ConversationalRetrievalChain.from_llm(
 max_len = 50
 max_mem = 5
 
-user_input = input()
 convo_len = 0
 
-while user_input != "q":
+def chat(input):
     if convo_len > max_mem:
         texts_to_add = []
         for i in range(0, 2*convo_len, 2):
@@ -78,12 +77,8 @@ while user_input != "q":
         convo_len = 0
         memory.clear()
     convo_len += 1
-    words = user_input.split(" ")
-    print(qa({"question": " ".join(words[:min(len(words), max_len)])})['answer'])
-    user_input = input()
-
-def chat(input):
-    return qa({"question": input})['answer']
+    words = input.split(" ")
+    return qa({"question": " ".join(words[:min(len(words), max_len)])})['answer']
 
 demo = gr.Interface(
     fn=chat,
