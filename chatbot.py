@@ -69,6 +69,9 @@ convo_len = 0
 def chat(input):
     convo_len = len(memory.load_memory_variables({})['chat_history'])
     if convo_len > max_mem:
+        print(convo_len)
+        print(memory.load_memory_variables({})['chat_history'])
+        print(list(range(0, 2*convo_len, 2)))
         texts_to_add = []
         for i in range(0, 2*convo_len, 2):
             oldest_QA = memory.load_memory_variables({})['chat_history'][i:i+2]
