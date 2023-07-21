@@ -86,4 +86,4 @@ demo = gr.Interface(
     inputs=gr.Textbox(lines=2, placeholder="Name Here..."),
     outputs="text",
 )
-demo.launch()
+demo.launch(share=True)
