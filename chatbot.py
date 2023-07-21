@@ -67,7 +67,7 @@ max_mem = 5
 convo_len = 0
 
 def chat(input):
-    convo_len = len(memory.load_memory_variables({})['chat_history']) / 2
+    convo_len = int(len(memory.load_memory_variables({})['chat_history']) / 2)
     if convo_len > max_mem:
         texts_to_add = []
         for i in range(0, 2*convo_len, 2):
