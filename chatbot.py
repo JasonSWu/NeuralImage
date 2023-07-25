@@ -92,9 +92,10 @@ def chat(input):
         convo_len = 0
         memory.clear()
     convo_len += 1
+    shortened_input = input.split(" ")[:max_len]
     final_input = manual_template.format(
-        input= " ".join(input.split(" ")[:max_len]), 
-        context=retrieve_info(info_identifier, summarizer))
+        input= " ".join(shortened_input), 
+        context=retrieve_info(info_identifier, summarizer, 50, shortened_input))
     return qa(
         {"question": final_input})['answer']
 
