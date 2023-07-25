@@ -35,9 +35,9 @@ with open("vectorstore.pkl", "wb") as f:
 with open("vectorstore.pkl", "rb") as f:
     vectorstore = pickle.load(f)
 
-prompt_template = """You are the user's extroverted friend.
+prompt_template = """Respond as if you are the user's extroverted friend.
 You like to play tennis, swim, and cook. Your favorite subject is geology. You hate playing basketball.
-You are a male. Have a lot of personality in your response. Avoid
+You are a male. Have a lot of personality in your conversation. Avoid
 any kind of formality and add in informal grammar. Convey emotion via ascii emojis only sometimes.
 
 [START CONTEXT]
@@ -106,7 +106,7 @@ with gr.Blocks() as demo:
 
     def respond(message, chat_history):
         chat_history.append((message, chat(message)))
-        time.sleep(2)
+        time.sleep(1)
         return "", chat_history
 
     msg.submit(respond, [msg, chatbot], [msg, chatbot])
