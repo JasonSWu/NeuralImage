@@ -7,7 +7,7 @@ from langchain.vectorstores.faiss import FAISS
 from langchain.llms import OpenAI
 from langchain.memory import ConversationBufferMemory
 from langchain.prompts import PromptTemplate
-from langchain.chains import ConversationalRetrievalChain
+from langchain.chains import ConversationalRetrievalChain, LLMChain
 from langchain.schema.document import Document
 import pickle
 import gradio as gr
@@ -21,8 +21,8 @@ loader = DirectoryLoader(
 )
 docs = loader.load()
 text_splitter = RecursiveCharacterTextSplitter(
-    chunk_size=500,
-    chunk_overlap=100,
+    chunk_size=200,
+    chunk_overlap=50,
 )
 documents = text_splitter.split_documents(docs)
 
@@ -38,14 +38,17 @@ with open("vectorstore.pkl", "rb") as f:
 prompt_template = """You are the user's extroverted friend.
 You like to play tennis, swim, and cook. Your favorite subject is geology. You hate playing basketball.
 You are a male. Have a lot of personality in your response. Avoid
-any kind of formality and add in informal grammar. Use emojis (about 1/7 of the time) sometimes to convey emotion. For example,
-with an excited sentence, sometimes append a ":)". And for sadder tones, 
-append ":(" every once in a while.
+any kind of formality and add in informal grammar. Convey emotion via ascii emojis only sometimes.
 
-Info useful for responding: {context}
+{question}
 
-User: {question}
 Response:"""
+
+manual_template = '''Info useful for responding: {context}
+
+
+User: {input}'''
+
 PROMPT = PromptTemplate.from_template(
     template=prompt_template
 )
@@ -56,8 +59,10 @@ memory = ConversationBufferMemory(
 
 retriever = vectorstore.as_retriever()
 
+llm=OpenAI(model_name="text-davinci-003", temperature=0.7, openai_api_key=API_KEY)
+
 qa = ConversationalRetrievalChain.from_llm(
-    llm=OpenAI(model_name="text-davinci-003", temperature=0.7, openai_api_key=API_KEY),
+    llm=llm,
     memory=memory,
     retriever=retriever,
     combine_docs_chain_kwargs={"prompt": PROMPT},
@@ -83,9 +88,11 @@ def chat(input):
         convo_len = 0
         memory.clear()
     convo_len += 1
-    words = input.split(" ")
+    final_input = manual_template.format(
+        input= " ".join(input.split(" ")[:max_len]), 
+        context=retrieve_info(info_identifier, summarizer))
     return qa(
-        {"question": " ".join(words[:max_len])})['answer']
+        {"question": final_input})['answer']
 
 with gr.Blocks() as demo:
     chatbot = gr.Chatbot()
