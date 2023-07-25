@@ -91,7 +91,6 @@ def chat(input):
         vectorstore.add_texts(texts_to_add)
         convo_len = 0
         memory.clear()
-    convo_len += 1
     shortened_input = input.split(" ")[:max_len]
     search_info = retrieve_info(info_identifier, summarizer, 50, shortened_input)
     print(search_info)
