@@ -50,7 +50,7 @@ manual_template = '''Info useful for responding: {context}
 User: {input}'''
 
 PROMPT = PromptTemplate.from_template(
-    template=prompt_template
+    template=prompt_template, input_variables=['question']
 )
 
 memory = ConversationBufferMemory(
