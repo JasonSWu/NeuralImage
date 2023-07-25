@@ -85,8 +85,7 @@ def chat(input):
     convo_len += 1
     words = input.split(" ")
     return qa(
-        {"question": " ".join(words[:max_len]), 
-         "context": retrieve_info(info_identifier, summarizer, 50, input)})['answer']
+        {"question": " ".join(words[:max_len])})['answer']
 
 with gr.Blocks() as demo:
     chatbot = gr.Chatbot()
