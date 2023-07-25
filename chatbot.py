@@ -72,7 +72,7 @@ qa = ConversationalRetrievalChain.from_llm(
     combine_docs_chain_kwargs={"prompt": PROMPT},
 )
 
-info_identifier = get_info_identifier('text-curie-001')
+info_identifier = get_info_identifier('text-davinci-001')
 summarizer = get_summarizer('text-curie-001')
 
 max_len = 50
