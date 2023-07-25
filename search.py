@@ -50,6 +50,7 @@ def get_summarizer(model='text-davinci-001'):
 
 def retrieve_info(info_identifier, summarizer, max_words, input: str):
     identifier = info_identifier(input)
+    print(identifier)
     if identifier.find("Nothing") == -1:
         return " ".join(summarizer(identifier).split(" ")[:max_words])
     return "None"
