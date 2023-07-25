@@ -93,9 +93,11 @@ def chat(input):
         memory.clear()
     convo_len += 1
     shortened_input = input.split(" ")[:max_len]
+    search_info = retrieve_info(info_identifier, summarizer, 50, shortened_input)
+    print(search_info)
     final_input = manual_template.format(
         input= " ".join(shortened_input), 
-        context=retrieve_info(info_identifier, summarizer, 50, shortened_input))
+        context= search_info)
     return qa(
         {"question": final_input})['answer']
 
