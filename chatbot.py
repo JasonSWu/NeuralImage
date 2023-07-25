@@ -46,8 +46,8 @@ Info useful for responding: {context}
 
 User: {question}
 Response:"""
-PROMPT = PromptTemplate(
-    template=prompt_template, input_variables=["context", "question"]
+PROMPT = PromptTemplate.from_template(
+    template=prompt_template
 )
 
 memory = ConversationBufferMemory(
@@ -85,7 +85,7 @@ def chat(input):
     convo_len += 1
     words = input.split(" ")
     return qa(
-        {"question": " ".join(words[:min(len(words), max_len)]), 
+        {"question": " ".join(words[:max_len]), 
          "context": retrieve_info(info_identifier, summarizer, 50, input)})['answer']
 
 with gr.Blocks() as demo:
