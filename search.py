@@ -53,7 +53,3 @@ def retrieve_info(info_identifier, summarizer, max_words, input: str):
     if identifier.find("Nothing") == -1:
         return " ".join(summarizer(identifier).split(" ")[:max_words])
     return "None"
-
-i = get_info_identifier()
-s = get_summarizer()
-print(retrieve_info(i, s, "Tell me about a current event you're interested in."))
