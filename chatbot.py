@@ -11,6 +11,7 @@ from langchain.chains import ConversationalRetrievalChain
 from langchain.schema.document import Document
 import pickle
 import gradio as gr
+import time
 
 load_dotenv()
 API_KEY = os.environ.get("API_KEY")
@@ -81,9 +82,16 @@ def chat(input):
     words = input.split(" ")
     return qa({"question": " ".join(words[:min(len(words), max_len)])})['answer']
 
-demo = gr.Interface(
-    fn=chat,
-    inputs=gr.Textbox(lines=2, placeholder="Name Here..."),
-    outputs="text",
-)
+with gr.Blocks() as demo:
+    chatbot = gr.Chatbot()
+    msg = gr.Textbox()
+    clear = gr.ClearButton([msg, chatbot])
+
+    def respond(message, chat_history):
+        chat_history.append((message, chat(message)))
+        time.sleep(2)
+        return "", chat_history
+
+    msg.submit(respond, [msg, chatbot], [msg, chatbot])
+
 demo.launch(share=True)
