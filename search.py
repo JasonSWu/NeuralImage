@@ -12,13 +12,13 @@ def get_info_identifier(model='text-davinci-001'):
 
     template = """
     If the chat requires only personal information to respond to,
-    then output nothing. If the chat requires specialized knowledge, 
+    then output "Nothing." If the chat requires specialized expert knowledge, 
     output a question as if you are asking for this information from a search engine.
 
     chat: {question}
     """
 
-    llm = OpenAI(model=model, temperature=0.6) #create question variation. For example, if current events in general are asked about
+    llm = OpenAI(model=model, temperature=0.4) #create question variation. For example, if current events in general are asked about
     prompt_template = PromptTemplate(template=template, input_variables=["question"])
     identifier = LLMChain(llm=llm, prompt=prompt_template)
     return (lambda question: identifier({"question": question})['text'])
