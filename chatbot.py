@@ -12,6 +12,7 @@ from langchain.schema.document import Document
 import pickle
 import gradio as gr
 import time
+from search import get_info_identifier, get_summarizer, retrieve_info
 
 load_dotenv()
 API_KEY = os.environ.get("API_KEY")
@@ -41,7 +42,7 @@ any kind of formality and add in informal grammar. Use emojis (about 1/7 of the 
 with an excited sentence, sometimes append a ":)". And for sadder tones, 
 append ":(" every once in a while.
 
-{context}
+Info useful for responding: {context}
 
 User: {question}
 Response:"""
@@ -62,6 +63,9 @@ qa = ConversationalRetrievalChain.from_llm(
     combine_docs_chain_kwargs={"prompt": PROMPT},
 )
 
+info_identifier = get_info_identifier()
+summarizer = get_summarizer()
+
 max_len = 50
 max_mem = 5
 
@@ -80,7 +84,9 @@ def chat(input):
         memory.clear()
     convo_len += 1
     words = input.split(" ")
-    return qa({"question": " ".join(words[:min(len(words), max_len)])})['answer']
+    return qa(
+        {"question": " ".join(words[:min(len(words), max_len)]), 
+         "context": retrieve_info(info_identifier, summarizer, 50, input)})['answer']
 
 with gr.Blocks() as demo:
     chatbot = gr.Chatbot()
