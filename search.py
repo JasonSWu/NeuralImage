@@ -11,9 +11,10 @@ def get_info_identifier(model='text-davinci-001'):
     openai.api_key = os.environ["OPENAI_API_KEY"]
 
     template = """
-    If the chat requires only personal information to respond to,
-    then output "Nothing." If the chat requires specialized expert knowledge, 
+    If the chat requires specialized expert knowledge, 
     output a question as if you are asking for this information from a search engine.
+    Otherwise, especially if the chat requires only personal information to respond to,
+    output "Nothing." 
 
     chat: {question}
     """
