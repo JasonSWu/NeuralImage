@@ -72,8 +72,8 @@ qa = ConversationalRetrievalChain.from_llm(
     combine_docs_chain_kwargs={"prompt": PROMPT},
 )
 
-info_identifier = get_info_identifier()
-summarizer = get_summarizer()
+info_identifier = get_info_identifier('text_curie_001')
+summarizer = get_summarizer('text_curie_001')
 
 max_len = 50
 max_mem = 5
