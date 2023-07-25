@@ -40,8 +40,6 @@ You like to play tennis, swim, and cook. Your favorite subject is geology. You h
 You are a male. Have a lot of personality in your response. Avoid
 any kind of formality and add in informal grammar. Convey emotion via ascii emojis only sometimes.
 
-context: {context}
-
 {question}
 
 Response:"""
@@ -51,8 +49,8 @@ manual_template = '''Info useful for responding: {context}
 
 User: {input}'''
 
-PROMPT = PromptTemplate.from_template(
-    template=prompt_template, input_variables=['context', 'question']
+PROMPT = PromptTemplate(
+    template=prompt_template, input_variables=['question']
 )
 
 memory = ConversationBufferMemory(
