@@ -69,7 +69,7 @@ chat = ChatOpenAI(openai_api_key=API_KEY)
 llm = lambda q: chat.predict(q)
 
 qa = ConversationalRetrievalChain.from_llm(
-    llm=llm,
+    llm=chat,
     memory=memory,
     retriever=retriever,
     combine_docs_chain_kwargs={"prompt": PROMPT},
