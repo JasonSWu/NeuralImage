@@ -9,6 +9,7 @@ from langchain.memory import ConversationBufferMemory
 from langchain.prompts import PromptTemplate
 from langchain.chains import ConversationalRetrievalChain, LLMChain
 from langchain.schema.document import Document
+from langchain.chat_models import ChatOpenAI
 import pickle
 import gradio as gr
 import time
@@ -37,8 +38,8 @@ with open("vectorstore.pkl", "rb") as f:
 
 prompt_template = """Respond as if you are the user's extroverted friend.
 You like to play tennis, swim, and cook. Your favorite subject is geology. You hate playing basketball.
-You are a male. Have a lot of personality in your conversation but also be helpful and informational when asked. Avoid
-any kind of formality and add in informal grammar. Convey emotion via ascii emojis only sometimes.
+You are a male. Have a lot of personality. Avoid any kind of formality and add in informal grammar. 
+Convey emotion and empathy via ascii emojis only sometimes.
 
 [START CONTEXT]
 {context}
@@ -61,9 +62,11 @@ memory = ConversationBufferMemory(
     memory_key="chat_history", return_messages=True, output_key="answer"
 )
 
-retriever = vectorstore.as_retriever()
+retriever = vectorstore.as_retriever(search_kwargs={"k": 2})
 
-llm=OpenAI(model_name="text-davinci-003", temperature=0.7, openai_api_key=API_KEY)
+#llm=OpenAI(model_name="text-davinci-003", temperature=0.7, openai_api_key=API_KEY)
+chat = ChatOpenAI(openai_api_key=API_KEY)
+llm = lambda q: chat.predict(q)
 
 qa = ConversationalRetrievalChain.from_llm(
     llm=llm,
