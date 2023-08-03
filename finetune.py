@@ -92,6 +92,7 @@ def main(num_epochs = 10, lr=0.00002):
 
     tokenizer = AutoTokenizer.from_pretrained("THUDM/chatglm2-6b", trust_remote_code=True)
     model = AutoModel.from_pretrained("THUDM/chatglm2-6b", trust_remote_code=True).half().cuda() #do .half() for inference
+    model = model.quantize(4)
     thawed_params = freezer(model, 3)
     model.train()
     
