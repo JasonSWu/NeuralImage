@@ -57,6 +57,7 @@ def retrieve_data(process_fn: List[Callable[[str, str], Any]]):
   return data
 
 def freezer(model, n_dont_freeze):
+  thawed_layers = []
   chatGLMModel = None
   for name, layer in model.named_children():
     chatGLMModel = layer
@@ -64,6 +65,7 @@ def freezer(model, n_dont_freeze):
   for name, layer in chatGLMModel.named_children():
     if name == "output_layer":
       layer.requires_grad = True
+      thawed_layers += list(layer.parameters())
     elif name == "encoder":
       encoder = layer
     else:
@@ -73,21 +75,23 @@ def freezer(model, n_dont_freeze):
   for name, layer in encoder.named_children():
     if name == "final_layernorm":
       layer.requires_grad = True
+      thawed_layers += list(layer.parameters())
     elif name == "layers":
       layers = layer
   for name, layer in layers.named_children():
     if int(name) > lowest_i:
       layer.requires_grad = True
-      print("hey!")
+      thawed_layers += list(layer.parameters())
     else:
       layer.requires_grad = False
+  return thawed_layers
 
 def main(num_epochs = 10, lr=0.00002):
     device = torch.device("cuda")
 
     tokenizer = AutoTokenizer.from_pretrained("THUDM/chatglm2-6b", trust_remote_code=True)
     model = AutoModel.from_pretrained("THUDM/chatglm2-6b", trust_remote_code=True).cuda() #do .half() for inference
-    freezer(model, 5)
+    thawed_params = freezer(model, 3)
     model.train()
     
     raw_prompt = "以下诗句是苏轼，又名苏东坡，题为《{}》：\n{}"
@@ -102,14 +106,14 @@ def main(num_epochs = 10, lr=0.00002):
     pad_id = tokenizer.get_command("<pad>")
     loss_fn = torch.nn.CrossEntropyLoss(ignore_index=pad_id)
 
-    optimizer1 = torch.optim.SGD(model.parameters(), lr=lr)
-    optimizer2 = torch.optim.SGD(model.parameters(), lr=lr)
+    optimizer1 = torch.optim.SGD(thawed_params, lr=lr)
+    optimizer2 = torch.optim.SGD(thawed_params, lr=lr)
 
     bsz = 8
 
     raw_data, chat_data = retrieve_data([raw_process, chat_process])
-    model = finetune(model, optimizer1, loss_fn, raw_data, num_epochs, bsz, device)
-    model = finetune(model, optimizer2, loss_fn, chat_data, num_epochs, bsz, device)
+    finetune(model, optimizer1, loss_fn, raw_data, num_epochs, bsz, device)
+    finetune(model, optimizer2, loss_fn, chat_data, num_epochs, bsz, device)
     torch.save(model.state_dict(), "finetuned")
 
 if __name__ == "__main__":
