@@ -75,7 +75,8 @@ def retrieve_data(process_fn: List[Callable[[str, str], Any]]):
       data[i].append(process_fn[i](title, poem))
   return data
 
-def freezer(model, n_dont_freeze):
+def freezer_glm(model, n_dont_freeze):
+  #version for ChatGLM-6b
   thawed_layers = []
   chatGLMModel = None
   for name, layer in model.named_children():
@@ -105,6 +106,30 @@ def freezer(model, n_dont_freeze):
       layer.requires_grad = False
   return thawed_layers
 
+def freezer_bloom(model, n_dont_freeze):
+  thawed_layers = []
+  bloom_model = None
+  for name, layer in model.named_children():
+    if name == "transformer":
+      bloom_model = layer
+    elif name == "lm_head":
+      layer.requires_grad = True
+      thawed_layers += list(layer.parameters())
+  module_list = None
+  for name, layer in bloom_model.named_children():
+    if name == "h":
+      module_list = layer
+    else:
+      layer.requires_grad = False
+  lowest_i = 23 - n_dont_freeze
+  for name, layer in module_list.named_children():
+    if int(name) > lowest_i:
+      layer.requires_grad = True
+      thawed_layers += list(layer.parameters())
+    else:
+      layer.requires_grad = False
+  return thawed_layers
+
 def main(num_epochs = 10, lr=0.00002):
     device = torch.device("cuda")
     
@@ -114,7 +139,7 @@ def main(num_epochs = 10, lr=0.00002):
     model = BloomForCausalLM.from_pretrained(model_name, trust_remote_code=True).half().cuda() #do .half() for inference
     #model = model.quantize(4)
     
-    thawed_params = freezer(model, 5)
+    thawed_params = freezer_bloom(model, 5)
     model.train()
 
     raw_prompt = "以下诗句是苏轼，又名苏东坡，题为《{}》：\n{}"
