@@ -3,7 +3,7 @@ import torch.nn as nn
 from tqdm import tqdm
 from datasets import load_dataset
 from transformers import AutoConfig, AutoTokenizer, AutoModelForCausalLM, AutoModel
-from transformers import BloomForCausalLM, BloomTokenizerFast
+from transformers import BloomForCausalLM, BloomTokenizerFast, BloomConfig
 from model import ChatBot, MyDecoder
 from model2 import FineTuneTransformer, ManualDecoder
 from data import process_data
@@ -134,8 +134,9 @@ def main(num_epochs = 10, lr=0.00002):
     device = torch.device("cuda")
     
     model_name = "bigscience/bloomz-560m"
+
+    config = BloomConfig.from_pretrained(model_name)
     tokenizer = BloomTokenizerFast.from_pretrained(model_name, trust_remote_code=True)
-    
     model = BloomForCausalLM.from_pretrained(model_name, trust_remote_code=True).half().cuda() #do .half() for inference
     #model = model.quantize(4)
     
@@ -151,7 +152,7 @@ def main(num_epochs = 10, lr=0.00002):
     def chat_process(title, poem):
       return tokenizer([chat_prompt.format(user_query.format(title, poem[:-1]))], return_tensors="pt"), tokenizer([poem], return_tensors="pt")
     
-    pad_id = tokenizer.get_command("<pad>")
+    pad_id = config.pad_token_id
     loss_fn = torch.nn.CrossEntropyLoss(ignore_index=pad_id)
 
     optimizer1 = torch.optim.SGD(thawed_params, lr=lr)
