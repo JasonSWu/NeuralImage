@@ -30,7 +30,6 @@ def pooling_fn(a):
   return torch.mean(a, dim=-2)
 
 def finetune(base_llm, optimizer, loss_fn, train_dataloader, num_epochs, bsz, teacher_force=True, device=torch.device("cuda")):
-  base_llm = base_llm.to(device)
   optimizer = optimizer
   for epoch in range(1, num_epochs+1):
     total_loss = 0
@@ -137,7 +136,7 @@ def main(num_epochs = 10, lr=0.00002):
 
     config = BloomConfig.from_pretrained(model_name)
     tokenizer = BloomTokenizerFast.from_pretrained(model_name, trust_remote_code=True)
-    model = BloomForCausalLM.from_pretrained(model_name, trust_remote_code=True).half().cuda() #do .half() for inference
+    model = BloomForCausalLM.from_pretrained(model_name, trust_remote_code=True).cuda() #do .half() for inference
     #model = model.quantize(4)
     
     thawed_params = freezer_bloom(model, 5)
