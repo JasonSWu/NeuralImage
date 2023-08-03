@@ -3,6 +3,7 @@ import torch.nn as nn
 from tqdm import tqdm
 from datasets import load_dataset
 from transformers import AutoConfig, AutoTokenizer, AutoModelForCausalLM, AutoModel
+from transformers import BloomForCausalLM, BloomTokenizerFast
 from model import ChatBot, MyDecoder
 from model2 import FineTuneTransformer, ManualDecoder
 from data import process_data
@@ -107,10 +108,10 @@ def freezer(model, n_dont_freeze):
 def main(num_epochs = 10, lr=0.00002):
     device = torch.device("cuda")
     
-    tokenizer = AutoTokenizer.from_pretrained("THUDM/chatglm2-6b", trust_remote_code=True)
+    tokenizer = BloomTokenizerFast.from_pretrained("THUDM/chatglm2-6b", trust_remote_code=True)
     
-    model = AutoModel.from_pretrained("THUDM/chatglm2-6b", trust_remote_code=True).half().cuda() #do .half() for inference
-    model = model.quantize(4)
+    model = BloomForCausalLM.from_pretrained("THUDM/chatglm2-6b", trust_remote_code=True).half().cuda() #do .half() for inference
+    #model = model.quantize(4)
     
     thawed_params = freezer(model, 5)
     model.train()
