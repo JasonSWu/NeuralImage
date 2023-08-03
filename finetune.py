@@ -25,8 +25,9 @@ def finetune(base_llm, optimizer, loss_fn, train_dataloader, num_epochs, bsz, te
       #src and tgt should have token IDs, not actual words
       optimizer.zero_grad()
       src, tgt = entry
-      src = {'input_ids': torch.tensor([[1]], dtype=torch.float32), 'attention_mask': torch.tensor([[1]], dtype=torch.float32), "position_ids": torch.tensor([[0]], dtype=torch.float32)}
-      src = src.to(device)
+      src = {'input_ids': torch.tensor([[1]], dtype=torch.float32, device=device),
+             'attention_mask': torch.tensor([[1]], dtype=torch.float32, device=device), 
+             "position_ids": torch.tensor([[0]], dtype=torch.float32, device=device)}
       tgt = torch.tensor([[1]]).to(device)
       #tokenizer = AutoTokenizer.from_pretrained("THUDM/chatglm2-6b", trust_remote_code=True)
       #print(tokenizer.decode(src['input_ids'][0]), tokenizer.decode(tgt[0]))
