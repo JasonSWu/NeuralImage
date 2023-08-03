@@ -25,7 +25,7 @@ def finetune(base_llm, optimizer, loss_fn, train_dataloader, num_epochs, bsz, te
       #src and tgt should have token IDs, not actual words
       optimizer.zero_grad()
       src, tgt = entry
-      src = {'input_ids': torch.tensor([[1]], dtype=torch.float32, device=device),
+      src = {'input_ids': torch.tensor([[1]], dtype=torch.long, device=device),
              'attention_mask': torch.tensor([[1]], dtype=torch.long, device=device), 
              "position_ids": torch.tensor([[0]], dtype=torch.long, device=device)}
       tgt = torch.tensor([[1]]).to(device)
