@@ -32,6 +32,7 @@ def finetune(base_llm, optimizer, loss_fn, train_dataloader, num_epochs, bsz, te
     total_loss = 0
     for entry in tqdm(train_dataloader):
       check_memory()
+      torch.cuda.empty_cache()
       #src and tgt should have token IDs, not actual words
       optimizer.zero_grad()
       src, tgt = entry
