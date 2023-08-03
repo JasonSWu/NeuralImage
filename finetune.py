@@ -45,7 +45,7 @@ def retrieve_data(process_fn: List[Callable[[str, str], Any]]):
   '''prompt should have "{poem}" and "{title}" for formatting if provided'''
   data = [list() for fn in process_fn]
   indices = list(range(len(data)))
-  with open("poems.html", "rb") as f:
+  with open("scraping/poems.html", "rb") as f:
     soup = BeautifulSoup(f, "lxml")
   for entry in soup.find_all("li"):
     title, poem = entry.find_all("p")
