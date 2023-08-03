@@ -22,6 +22,7 @@ def finetune(base_llm, optimizer, loss_fn, train_dataloader, num_epochs, bsz, te
   for epoch in range(1, num_epochs+1):
     total_loss = 0
     for entry in tqdm(train_dataloader):
+      torch.cuda.empty_cache()
       #src and tgt should have token IDs, not actual words
       optimizer.zero_grad()
       src, tgt = entry
@@ -93,7 +94,7 @@ def main(num_epochs = 10, lr=0.00002):
     tokenizer = AutoTokenizer.from_pretrained("THUDM/chatglm2-6b", trust_remote_code=True)
     model = AutoModel.from_pretrained("THUDM/chatglm2-6b", trust_remote_code=True).half().cuda() #do .half() for inference
     model = model.quantize(4)
-    thawed_params = freezer(model, 3)
+    thawed_params = freezer(model, 5)
     model.train()
     
     raw_prompt = "以下诗句是苏轼，又名苏东坡，题为《{}》：\n{}"
