@@ -25,17 +25,15 @@ def finetune(base_llm, optimizer, loss_fn, train_dataloader, num_epochs, bsz, te
       #src and tgt should have token IDs, not actual words
       optimizer.zero_grad()
       src, tgt = entry
-      src = {'input_ids': torch.tensor([[1]], dtype=torch.long, device=device),
-             'attention_mask': torch.tensor([[1]], dtype=torch.long, device=device), 
-             "position_ids": torch.tensor([[0]], dtype=torch.long, device=device)}
-      tgt = torch.tensor([[1]]).to(device)
+      src = src.to(device)
+      tgt = tgt['input_ids'].to(device)
       #tokenizer = AutoTokenizer.from_pretrained("THUDM/chatglm2-6b", trust_remote_code=True)
       #print(tokenizer.decode(src['input_ids'][0]), tokenizer.decode(tgt[0]))
       len_tgt = tgt.size()[1]
       probabilities = base_llm(**src).logits
       probabilities = probabilities[:,-len_tgt:]
       loss = loss_fn(torch.transpose(probabilities, 1, 2), tgt) #need (batches, classes, seq). Before transpose, is (batches, seq, classes)
-      print(torch.cuda.memory_summary(device=None, abbreviated=False))
+      #print(torch.cuda.memory_summary(device=None, abbreviated=False))
       loss.backward()
       #torch.nn.utils.clip_grad_value_(model.parameters(), 5.0)
 
@@ -93,7 +91,7 @@ def main(num_epochs = 10, lr=0.00002):
     device = torch.device("cuda")
 
     tokenizer = AutoTokenizer.from_pretrained("THUDM/chatglm2-6b", trust_remote_code=True)
-    model = AutoModel.from_pretrained("THUDM/chatglm2-6b", trust_remote_code=True).cuda() #do .half() for inference
+    model = AutoModel.from_pretrained("THUDM/chatglm2-6b", trust_remote_code=True).half().cuda() #do .half() for inference
     thawed_params = freezer(model, 3)
     model.train()
     
