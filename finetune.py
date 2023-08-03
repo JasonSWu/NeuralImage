@@ -56,11 +56,38 @@ def retrieve_data(process_fn: List[Callable[[str, str], Any]]):
       data[i].append(process_fn[i](title, poem))
   return data
 
+def freezer(model, n_dont_freeze):
+  chatGLMModel = None
+  for name, layer in model.named_children():
+    chatGLMModel = layer
+  encoder = None
+  for name, layer in chatGLMModel.named_children():
+    if name == "output_layer":
+      layer.requires_grad = True
+    elif name == "encoder":
+      encoder = layer
+    else:
+      layer.requires_grad = False
+  layers = None
+  lowest_i = 27 - n_dont_freeze
+  for name, layer in encoder.named_children():
+    if name == "final_layernorm":
+      layer.requires_grad = True
+    elif name == "layers":
+      layers = layer
+  for name, layer in layers.named_children():
+    if int(name) > lowest_i:
+      layer.requires_grad = True
+      print("hey!")
+    else:
+      layer.requires_grad = False
+
 def main(num_epochs = 10, lr=0.00002):
     device = torch.device("cuda")
 
     tokenizer = AutoTokenizer.from_pretrained("THUDM/chatglm2-6b", trust_remote_code=True)
     model = AutoModel.from_pretrained("THUDM/chatglm2-6b", trust_remote_code=True).cuda() #do .half() for inference
+    freezer(model, 5)
     model.train()
     
     raw_prompt = "以下诗句是苏轼，又名苏东坡，题为《{}》：\n{}"
