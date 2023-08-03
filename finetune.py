@@ -35,28 +35,28 @@ def finetune(base_llm, optimizer, loss_fn, train_dataloader, num_epochs, bsz, te
   for epoch in range(1, num_epochs+1):
     total_loss = 0
     for entry in tqdm(train_dataloader):
-      torch.cuda.empty_cache()
+      #torch.cuda.empty_cache()
       #src and tgt should have token IDs, not actual words
       optimizer.zero_grad()
       src, tgt = entry
       src = src.to(device)
       tgt = tgt['input_ids'].to(device)
-      check_size_in_MB(src['input_ids'])
-      check_memory()
+      #print(check_size_in_MB(src['input_ids']))
+      #check_memory()
       #tokenizer = AutoTokenizer.from_pretrained("THUDM/chatglm2-6b", trust_remote_code=True)
       #print(tokenizer.decode(src['input_ids'][0]), tokenizer.decode(tgt[0]))
       len_tgt = tgt.size()[1]
       probabilities = base_llm(**src).logits
       probabilities = probabilities[:,-len_tgt:]
       loss = loss_fn(torch.transpose(probabilities, 1, 2), tgt) #need (batches, classes, seq). Before transpose, is (batches, seq, classes)
-      check_memory()
+      #check_memory()
       #print(torch.cuda.memory_summary(device=None, abbreviated=False))
       loss.backward()
       #torch.nn.utils.clip_grad_value_(model.parameters(), 5.0)
-      check_memory()
+      #check_memory()
       optimizer.step()
       total_loss += loss.item()
-      check_memory()
+      #check_memory()
 
     train_loss = total_loss / len(train_dataloader)
     print(f"epoch {epoch + 1}: {train_loss}")
