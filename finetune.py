@@ -10,11 +10,14 @@ from bs4 import BeautifulSoup
 from typing import Callable, Any, List
 import os, sys
 
+def bytes_to_GiB(b):
+  return b / 1073741824
+
 count = 0
 def check_memory():
   global count
   count += 1
-  print(f"{count}:", torch.cuda.memory_allocated(), torch.cuda.memory_reserved())
+  print(f"{count}:", bytes_to_GiB(torch.cuda.memory_allocated()), bytes_to_GiB(torch.cuda.memory_reserved()))
 
 def upper_tri_mask(n):
   return torch.triu(torch.ones((n,n)), diagonal=1)
