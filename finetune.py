@@ -11,7 +11,7 @@ from typing import Callable, Any, List
 import os, sys
 
 def bytes_to_GiB(b):
-  return b / 1073741824
+  return (b / 1073741824)
 
 count = 0
 def check_memory():
