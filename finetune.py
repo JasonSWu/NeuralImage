@@ -27,11 +27,11 @@ def finetune(base_llm, optimizer, loss_fn, train_dataloader, num_epochs, bsz, te
       src, tgt = entry
       src = src.to(device)
       tgt = tgt['input_ids'].to(device)
-      tokenizer = AutoTokenizer.from_pretrained("THUDM/chatglm2-6b", trust_remote_code=True)
-      print(tokenizer.decode(src['input_ids'][0]), tokenizer.decode(tgt[0]))
+      #tokenizer = AutoTokenizer.from_pretrained("THUDM/chatglm2-6b", trust_remote_code=True)
+      #print(tokenizer.decode(src['input_ids'][0]), tokenizer.decode(tgt[0]))
       len_tgt = tgt.size()[1]
       probabilities = base_llm(**src).logits
-      probabilities = probabilities[:,:-len_tgt]
+      probabilities = probabilities[:,-len_tgt:]
       loss = loss_fn(torch.transpose(probabilities, 1, 2), tgt) #need (batches, classes, seq). Before transpose, is (batches, seq, classes)
       loss.backward()
       #torch.nn.utils.clip_grad_value_(model.parameters(), 5.0)
