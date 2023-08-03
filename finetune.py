@@ -27,6 +27,7 @@ def finetune(base_llm, optimizer, loss_fn, train_dataloader, num_epochs, bsz, te
       src, tgt = entry
       src = src.to(device)
       tgt = tgt['input_ids'].to(device)
+      print(src['input_ids'].size(), tgt.size())
       len_tgt = tgt.size()[1]
       probabilities = base_llm(**src).logits
       probabilities = probabilities[:,:-len_tgt]
