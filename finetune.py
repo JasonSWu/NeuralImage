@@ -31,25 +31,27 @@ def finetune(base_llm, optimizer, loss_fn, train_dataloader, num_epochs, bsz, te
   for epoch in range(1, num_epochs+1):
     total_loss = 0
     for entry in tqdm(train_dataloader):
-      check_memory()
       torch.cuda.empty_cache()
       #src and tgt should have token IDs, not actual words
       optimizer.zero_grad()
       src, tgt = entry
       src = src.to(device)
       tgt = tgt['input_ids'].to(device)
+      check_memory()
       #tokenizer = AutoTokenizer.from_pretrained("THUDM/chatglm2-6b", trust_remote_code=True)
       #print(tokenizer.decode(src['input_ids'][0]), tokenizer.decode(tgt[0]))
       len_tgt = tgt.size()[1]
       probabilities = base_llm(**src).logits
       probabilities = probabilities[:,-len_tgt:]
       loss = loss_fn(torch.transpose(probabilities, 1, 2), tgt) #need (batches, classes, seq). Before transpose, is (batches, seq, classes)
+      check_memory()
       #print(torch.cuda.memory_summary(device=None, abbreviated=False))
       loss.backward()
       #torch.nn.utils.clip_grad_value_(model.parameters(), 5.0)
-
+      check_memory()
       optimizer.step()
       total_loss += loss.item()
+      check_memory()
 
     train_loss = total_loss / len(train_dataloader)
     print(f"epoch {epoch + 1}: {train_loss}")
@@ -100,15 +102,15 @@ def freezer(model, n_dont_freeze):
 
 def main(num_epochs = 10, lr=0.00002):
     device = torch.device("cuda")
-    check_memory() #1
+    
     tokenizer = AutoTokenizer.from_pretrained("THUDM/chatglm2-6b", trust_remote_code=True)
-    check_memory() #2
+    
     model = AutoModel.from_pretrained("THUDM/chatglm2-6b", trust_remote_code=True).half().cuda() #do .half() for inference
     model = model.quantize(4)
-    check_memory() #3
+    
     thawed_params = freezer(model, 5)
     model.train()
-    check_memory() #4
+
     raw_prompt = "以下诗句是苏轼，又名苏东坡，题为《{}》：\n{}"
     def raw_process(title, poem):
       return tokenizer([raw_prompt.format(title, poem[:-1])], return_tensors="pt"), tokenizer([poem], return_tensors="pt")
@@ -125,9 +127,9 @@ def main(num_epochs = 10, lr=0.00002):
     optimizer2 = torch.optim.SGD(thawed_params, lr=lr)
 
     bsz = 8
-    check_memory() #5
+    
     raw_data, chat_data = retrieve_data([raw_process, chat_process])
-    check_memory() #6
+    
     finetune(model, optimizer1, loss_fn, raw_data, num_epochs, bsz, device)
     finetune(model, optimizer2, loss_fn, chat_data, num_epochs, bsz, device)
     torch.save(model.state_dict(), "finetuned")
