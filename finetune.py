@@ -59,6 +59,7 @@ def main(num_epochs = 10, lr=0.00002):
 
     tokenizer = AutoTokenizer.from_pretrained("THUDM/chatglm2-6b", trust_remote_code=True)
     model = AutoModel.from_pretrained("THUDM/chatglm2-6b", trust_remote_code=True).cuda() #do .half() for inference
+    model.train()
     
     raw_prompt = "以下诗句是苏轼，又名苏东坡，题为《{}》：\n"
     def raw_process(title, poem):
@@ -72,8 +73,8 @@ def main(num_epochs = 10, lr=0.00002):
     pad_id = tokenizer.get_command("<pad>")
     loss_fn = torch.nn.CrossEntropyLoss(ignore_index=pad_id)
 
-    optimizer1 = torch.optim.SGD(lr=lr)
-    optimizer2 = torch.optim.SGD(lr=lr)
+    optimizer1 = torch.optim.SGD(model.parameters(), lr=lr)
+    optimizer2 = torch.optim.SGD(model.parameters(), lr=lr)
 
     bsz = 8
 
