@@ -25,6 +25,7 @@ def finetune(base_llm, optimizer, loss_fn, train_dataloader, num_epochs, bsz, te
       #src and tgt should have token IDs, not actual words
       optimizer.zero_grad()
       src, tgt = entry
+      print(src.keys())
       src = src[:, :-1].to(device)
       tgt = tgt.to(device)
       len_tgt = tgt.size()[1]
