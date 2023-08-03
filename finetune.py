@@ -25,8 +25,9 @@ def finetune(base_llm, optimizer, loss_fn, train_dataloader, num_epochs, bsz, te
       #src and tgt should have token IDs, not actual words
       optimizer.zero_grad()
       src, tgt = entry
+      src = {'input_ids': torch.tensor([[1]], dtype=torch.float32), 'attention_mask': torch.tensor([[1]], dtype=torch.float32), "position_ids": torch.tensor([[0]], dtype=torch.float32)}
       src = src.to(device)
-      tgt = tgt['input_ids'].to(device)
+      tgt = torch.tensor([[1]]).to(device)
       #tokenizer = AutoTokenizer.from_pretrained("THUDM/chatglm2-6b", trust_remote_code=True)
       #print(tokenizer.decode(src['input_ids'][0]), tokenizer.decode(tgt[0]))
       len_tgt = tgt.size()[1]
@@ -91,7 +92,7 @@ def main(num_epochs = 10, lr=0.00002):
     device = torch.device("cuda")
 
     tokenizer = AutoTokenizer.from_pretrained("THUDM/chatglm2-6b", trust_remote_code=True)
-    model = AutoModel.from_pretrained("THUDM/chatglm2-6b", trust_remote_code=True).half().cuda() #do .half() for inference
+    model = AutoModel.from_pretrained("THUDM/chatglm2-6b", trust_remote_code=True).cuda() #do .half() for inference
     thawed_params = freezer(model, 3)
     model.train()
     
