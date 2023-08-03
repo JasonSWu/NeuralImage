@@ -25,11 +25,10 @@ def finetune(base_llm, optimizer, loss_fn, train_dataloader, num_epochs, bsz, te
       #src and tgt should have token IDs, not actual words
       optimizer.zero_grad()
       src, tgt = entry
-      print(src.keys())
-      src = src[:, :-1].to(device)
-      tgt = tgt.to(device)
+      src = src.to(device)
+      tgt = tgt['input_ids'].to(device)
       len_tgt = tgt.size()[1]
-      probabilities = base_llm(src).logits
+      probabilities = base_llm(**src).logits
       probabilities = probabilities[:,:-len_tgt]
       loss = loss_fn(torch.transpose(probabilities, 1, 2), tgt) #need (batches, classes, seq). Before transpose, is (batches, seq, classes)
       loss.backward()
@@ -62,14 +61,14 @@ def main(num_epochs = 10, lr=0.00002):
     model = AutoModel.from_pretrained("THUDM/chatglm2-6b", trust_remote_code=True).cuda() #do .half() for inference
     model.train()
     
-    raw_prompt = "以下诗句是苏轼，又名苏东坡，题为《{}》：\n"
+    raw_prompt = "以下诗句是苏轼，又名苏东坡，题为《{}》：\n{}"
     def raw_process(title, poem):
-      return tokenizer([raw_prompt.format(title)], return_tensors="pt"), tokenizer([poem], return_tensors="pt")
+      return tokenizer([raw_prompt.format(title, poem[:-1])], return_tensors="pt"), tokenizer([poem], return_tensors="pt")
     
     chat_prompt = "[Round 1]\n\n问：{}\n\n答：" #The colons are weird Chinese version of colon
     user_query = "模仿苏东坡（又名苏轼）的风格写一首诗，题为《{}》：\n{}"
     def chat_process(title, poem):
-      return tokenizer([chat_prompt.format(user_query.format(title, poem))], return_tensors="pt"), tokenizer([poem], return_tensors="pt")
+      return tokenizer([chat_prompt.format(user_query.format(title, poem[:-1]))], return_tensors="pt"), tokenizer([poem], return_tensors="pt")
     
     pad_id = tokenizer.get_command("<pad>")
     loss_fn = torch.nn.CrossEntropyLoss(ignore_index=pad_id)
