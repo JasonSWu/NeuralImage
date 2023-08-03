@@ -10,6 +10,11 @@ from bs4 import BeautifulSoup
 from typing import Callable, Any, List
 import os, sys
 
+count = 0
+def check_memory():
+  count += 1
+  print(torch.cuda.memory_allocated(), torch.cuda.memory_reserved())
+
 def upper_tri_mask(n):
   return torch.triu(torch.ones((n,n)), diagonal=1)
 
@@ -22,7 +27,7 @@ def finetune(base_llm, optimizer, loss_fn, train_dataloader, num_epochs, bsz, te
   for epoch in range(1, num_epochs+1):
     total_loss = 0
     for entry in tqdm(train_dataloader):
-      torch.cuda.empty_cache()
+      check_memory()
       #src and tgt should have token IDs, not actual words
       optimizer.zero_grad()
       src, tgt = entry
@@ -90,13 +95,15 @@ def freezer(model, n_dont_freeze):
 
 def main(num_epochs = 10, lr=0.00002):
     device = torch.device("cuda")
-
+    check_memory() #1
     tokenizer = AutoTokenizer.from_pretrained("THUDM/chatglm2-6b", trust_remote_code=True)
+    check_memory() #2
     model = AutoModel.from_pretrained("THUDM/chatglm2-6b", trust_remote_code=True).half().cuda() #do .half() for inference
     model = model.quantize(4)
+    check_memory() #3
     thawed_params = freezer(model, 5)
     model.train()
-    
+    check_memory() #4
     raw_prompt = "以下诗句是苏轼，又名苏东坡，题为《{}》：\n{}"
     def raw_process(title, poem):
       return tokenizer([raw_prompt.format(title, poem[:-1])], return_tensors="pt"), tokenizer([poem], return_tensors="pt")
@@ -113,8 +120,9 @@ def main(num_epochs = 10, lr=0.00002):
     optimizer2 = torch.optim.SGD(thawed_params, lr=lr)
 
     bsz = 8
-
+    check_memory() #5
     raw_data, chat_data = retrieve_data([raw_process, chat_process])
+    check_memory() #6
     finetune(model, optimizer1, loss_fn, raw_data, num_epochs, bsz, device)
     finetune(model, optimizer2, loss_fn, chat_data, num_epochs, bsz, device)
     torch.save(model.state_dict(), "finetuned")
