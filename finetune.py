@@ -52,7 +52,7 @@ def finetune(base_llm, optimizer, loss_fn, train_dataloader, num_epochs, bsz, te
       total_loss += loss.item()
 
     train_loss = total_loss / len(train_dataloader)
-    print(f"epoch {epoch + 1}: train_loss")
+    print(f"epoch {epoch + 1}: {train_loss}")
   return base_llm
 
 def retrieve_data(process_fn: List[Callable[[str, str], Any]]):
