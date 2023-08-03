@@ -22,7 +22,6 @@ def finetune(base_llm, optimizer, loss_fn, train_dataloader, num_epochs, bsz, te
   for epoch in range(1, num_epochs+1):
     total_loss = 0
     for entry in tqdm(train_dataloader):
-      torch.cuda.empty_cache()
       #src and tgt should have token IDs, not actual words
       optimizer.zero_grad()
       src, tgt = entry
@@ -34,6 +33,7 @@ def finetune(base_llm, optimizer, loss_fn, train_dataloader, num_epochs, bsz, te
       probabilities = base_llm(**src).logits
       probabilities = probabilities[:,-len_tgt:]
       loss = loss_fn(torch.transpose(probabilities, 1, 2), tgt) #need (batches, classes, seq). Before transpose, is (batches, seq, classes)
+      print(torch.cuda.memory_summary(device=None, abbreviated=False))
       loss.backward()
       #torch.nn.utils.clip_grad_value_(model.parameters(), 5.0)
 
