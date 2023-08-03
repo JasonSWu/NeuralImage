@@ -19,6 +19,9 @@ def check_memory():
   count += 1
   print(f"{count}:", bytes_to_GiB(torch.cuda.memory_allocated()), bytes_to_GiB(torch.cuda.memory_reserved()))
 
+def check_size_in_MB(tensor):
+  return (tensor.nelement() * tensor.element_size() / 1048576)
+
 def upper_tri_mask(n):
   return torch.triu(torch.ones((n,n)), diagonal=1)
 
@@ -37,6 +40,7 @@ def finetune(base_llm, optimizer, loss_fn, train_dataloader, num_epochs, bsz, te
       src, tgt = entry
       src = src.to(device)
       tgt = tgt['input_ids'].to(device)
+      check_size_in_MB(src['input_ids'])
       check_memory()
       #tokenizer = AutoTokenizer.from_pretrained("THUDM/chatglm2-6b", trust_remote_code=True)
       #print(tokenizer.decode(src['input_ids'][0]), tokenizer.decode(tgt[0]))
