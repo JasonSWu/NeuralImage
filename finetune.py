@@ -12,8 +12,9 @@ import os, sys
 
 count = 0
 def check_memory():
+  global count
   count += 1
-  print(torch.cuda.memory_allocated(), torch.cuda.memory_reserved())
+  print(f"{count}:", torch.cuda.memory_allocated(), torch.cuda.memory_reserved())
 
 def upper_tri_mask(n):
   return torch.triu(torch.ones((n,n)), diagonal=1)
