@@ -86,10 +86,8 @@ def freezer(model, n_dont_freeze):
       layer.requires_grad = False
   return thawed_layers
 
-def main(max_split_size_mb, num_epochs = 10, lr=0.00002):
+def main(num_epochs = 10, lr=0.00002):
     device = torch.device("cuda")
-    
-    os.environ["PYTORCH_CUDA_ALLOC_CONF"] = f"max_split_size_mb:{max_split_size_mb}"
 
     tokenizer = AutoTokenizer.from_pretrained("THUDM/chatglm2-6b", trust_remote_code=True)
     model = AutoModel.from_pretrained("THUDM/chatglm2-6b", trust_remote_code=True).cuda() #do .half() for inference
@@ -119,7 +117,7 @@ def main(max_split_size_mb, num_epochs = 10, lr=0.00002):
     torch.save(model.state_dict(), "finetuned")
 
 if __name__ == "__main__":
-    main(int(sys.argv[1]), int(sys.argv[2]), float(sys.argv[3]))
+    main(int(sys.argv[1]), float(sys.argv[2]))
 
 '''finetuning scheme:
   raw text:
