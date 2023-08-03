@@ -91,7 +91,7 @@ def main(num_epochs = 10, lr=0.00002):
 
     tokenizer = AutoTokenizer.from_pretrained("THUDM/chatglm2-6b", trust_remote_code=True)
     model = AutoModel.from_pretrained("THUDM/chatglm2-6b", trust_remote_code=True).half().cuda() #do .half() for inference
-    thawed_params = freezer(model, 3)
+    thawed_params = freezer(model, 5)
     model.train()
     
     raw_prompt = "以下诗句是苏轼，又名苏东坡，题为《{}》：\n{}"
