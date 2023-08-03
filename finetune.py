@@ -4,6 +4,7 @@ from tqdm import tqdm
 from datasets import load_dataset
 from transformers import AutoConfig, AutoTokenizer, AutoModelForCausalLM, AutoModel
 from transformers import BloomForCausalLM, BloomTokenizerFast, BloomConfig
+from transformers import GPT2LMHeadModel, GPT2Tokenizer
 from model import ChatBot, MyDecoder
 from model2 import FineTuneTransformer, ManualDecoder
 from data import process_data
@@ -131,14 +132,14 @@ def freezer_bloom(model, n_dont_freeze):
 def main(num_epochs = 10, lr=0.00002):
     device = torch.device("cuda")
     
-    model_name = "bigscience/bloomz-560m"
+    model_name = "IDEA-CCNL/Wenzhong-GPT2-110M"
 
-    config = BloomConfig.from_pretrained(model_name)
-    tokenizer = BloomTokenizerFast.from_pretrained(model_name, trust_remote_code=True)
-    model = BloomForCausalLM.from_pretrained(model_name, trust_remote_code=True).half().cuda() #do .half() for inference
+    #config = BloomConfig.from_pretrained(model_name)
+    tokenizer = GPT2Tokenizer.from_pretrained(model_name)
+    model = GPT2LMHeadModel.from_pretrained(model_name).half().cuda()
     #model = model.quantize(8) only for GLM-6b
     
-    thawed_params = freezer_bloom(model, 5)
+    thawed_params = freezer_bloom(model, 4)
     model.train()
 
     raw_prompt = "以下诗句是苏轼，又名苏东坡，题为《{}》：\n{}"
@@ -150,7 +151,7 @@ def main(num_epochs = 10, lr=0.00002):
     def chat_process(title, poem):
       return tokenizer([chat_prompt.format(user_query.format(title, poem[:-1]))], return_tensors="pt"), tokenizer([poem], return_tensors="pt")
     
-    pad_id = config.pad_token_id
+    pad_id = 50256
     loss_fn = torch.nn.CrossEntropyLoss(ignore_index=pad_id)
 
     optimizer1 = torch.optim.SGD(thawed_params, lr=lr)
