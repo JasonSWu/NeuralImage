@@ -34,7 +34,7 @@ def finetune(base_llm, optimizer, loss_fn, train_dataloader, num_epochs, bsz, te
   optimizer = optimizer
   for epoch in range(1, num_epochs+1):
     total_loss = 0
-    for entry in tqdm(train_dataloader[2028:]):
+    for entry in tqdm(train_dataloader):
       #torch.cuda.empty_cache()
       optimizer.zero_grad()
       src, tgt = entry
@@ -142,14 +142,24 @@ def main(num_epochs = 10, lr=0.00002):
     thawed_params = freezer_bloom(model, 4)
     model.train()
 
-    raw_prompt = "以下诗句是苏轼，又名苏东坡，题为《{}》：\n{}"
+    max_len = 1024
+
+    raw_prompt = "以下诗句是苏轼，又名苏东坡，题为《{}》：\n"
     def raw_process(title, poem):
-      return tokenizer([raw_prompt.format(title, poem[:-1])], return_tensors="pt"), tokenizer([poem], return_tensors="pt")
+      tgt = tokenizer([poem], return_tensors="pt")
+      src = tokenizer([raw_prompt.format(title)], return_tensors="pt")
+      len_src = src.size()[1]
+      tgt = tgt[:,:(max_len - len_src)]
+      return torch.concat((src, tgt[:,:-1]), dim=1), tgt
     
     chat_prompt = "[Round 1]\n\n问：{}\n\n答：" #The colons are weird Chinese version of colon
-    user_query = "模仿苏东坡（又名苏轼）的风格写一首诗，题为《{}》：\n{}"
+    user_query = "模仿苏东坡（又名苏轼）的风格写一首诗，题为《{}》"
     def chat_process(title, poem):
-      return tokenizer([chat_prompt.format(user_query.format(title, poem[:-1]))], return_tensors="pt"), tokenizer([poem], return_tensors="pt")
+      tgt = tokenizer([poem], return_tensors="pt")
+      src = tokenizer([chat_prompt.format(user_query.format(title))], return_tensors="pt")
+      len_src = src.size()[1]
+      tgt = tgt[:,:(max_len - len_src)]
+      return torch.concat((tokenizer([chat_prompt.format(user_query.format(title))], return_tensors="pt",), tgt[:,:-1]), dim=1), tgt
     
     pad_id = 50256
     loss_fn = torch.nn.CrossEntropyLoss(ignore_index=pad_id)
