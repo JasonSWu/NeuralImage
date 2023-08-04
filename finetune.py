@@ -38,9 +38,6 @@ def finetune(base_llm, optimizer, loss_fn, train_dataloader, num_epochs, bsz, te
       #torch.cuda.empty_cache()
       optimizer.zero_grad()
       src, tgt = entry
-      src = src.to(device)
-      tgt = tgt['input_ids'].to(device)
-      print("hey")
       #print(check_size_in_MB(src['input_ids']))
       #check_memory()
       #tokenizer = AutoTokenizer.from_pretrained("THUDM/chatglm2-6b", trust_remote_code=True)
