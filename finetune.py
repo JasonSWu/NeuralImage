@@ -62,7 +62,6 @@ def finetune(base_llm, optimizer, loss_fn, train_dataloader, num_epochs, bsz, te
   return base_llm
 
 def retrieve_data(process_fn: List[Callable[[str, str], Any]]):
-  '''prompt should have "{poem}" and "{title}" for formatting if provided'''
   data = [list() for fn in process_fn]
   indices = list(range(len(data)))
   with open("scraping/poems.html", "rb") as f:
@@ -144,25 +143,33 @@ def main(num_epochs = 10, lr=0.00002):
 
     max_len = 1024
 
-    raw_prompt = "以下诗句是苏轼，又名苏东坡，题为《{}》：\n"
+    def concat(src, tgt):
+      {key: torch.concat((src[key], tgt[key]), dim=1) for key in src.keys()}
+
+    def truncate(tensor_dict, len):
+      {key: value[:,:len].to(device) for key, value in tensor_dict.items()}
+    
+    raw_prompt = "以下诗句是苏轼，又名苏东坡，题为《{}》：\n{}"
     def raw_process(title, poem):
       tgt = tokenizer([poem], return_tensors="pt")
       src = tokenizer([raw_prompt.format(title)], return_tensors="pt")
-      len_src = src.size()[1]
-      tgt = tgt[:,:(max_len - len_src)]
-      return torch.concat((src, tgt[:,:-1]), dim=1), tgt
+      max_tgt_len = max_len - src['input_ids'].size()[1] + 1
+      src = truncate(concat(src, tgt), max_len)
+      tgt = truncate(tgt, max_tgt_len)
+      return src, tgt
     
     chat_prompt = "[Round 1]\n\n问：{}\n\n答：" #The colons are weird Chinese version of colon
     user_query = "模仿苏东坡（又名苏轼）的风格写一首诗，题为《{}》"
     def chat_process(title, poem):
       tgt = tokenizer([poem], return_tensors="pt")
       src = tokenizer([chat_prompt.format(user_query.format(title))], return_tensors="pt")
-      len_src = src.size()[1]
-      tgt = tgt[:,:(max_len - len_src)]
-      return torch.concat((tokenizer([chat_prompt.format(user_query.format(title))], return_tensors="pt",), tgt[:,:-1]), dim=1), tgt
+      max_tgt_len = max_len - src['input_ids'].size()[1] + 1
+      src = truncate(concat(src, tgt), max_len)
+      tgt = truncate(tgt, max_tgt_len)
+      return src, tgt
     
-    pad_id = 50256
-    loss_fn = torch.nn.CrossEntropyLoss(ignore_index=pad_id)
+    #pad_id = 50256
+    loss_fn = torch.nn.CrossEntropyLoss()
 
     optimizer1 = torch.optim.SGD(thawed_params, lr=lr)
     optimizer2 = torch.optim.SGD(thawed_params, lr=lr)
