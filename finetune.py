@@ -34,6 +34,7 @@ def finetune(base_llm, optimizer, loss_fn, train_dataloader, num_epochs, bsz, te
   optimizer = optimizer
   for epoch in range(1, num_epochs+1):
     total_loss = 0
+    torch.cuda.empty_cache()
     for entry in tqdm(train_dataloader):
       #torch.cuda.empty_cache()
       optimizer.zero_grad()
@@ -134,7 +135,7 @@ def main(num_epochs = 10, lr=0.00002):
 
     #config = BloomConfig.from_pretrained(model_name)
     tokenizer = GPT2Tokenizer.from_pretrained(model_name)
-    model = GPT2LMHeadModel.from_pretrained(model_name).half().cuda()
+    model = GPT2LMHeadModel.from_pretrained(model_name).cuda()
     #model = model.quantize(8) only for GLM-6b
     
     thawed_params = freezer_bloom(model, 4)
