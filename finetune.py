@@ -144,10 +144,10 @@ def main(num_epochs = 10, lr=0.00002):
     max_len = 1024
 
     def concat(src, tgt):
-      {key: torch.concat((src[key], tgt[key]), dim=1) for key in src.keys()}
+      return {key: torch.concat((src[key], tgt[key]), dim=1) for key in src.keys()}
 
     def truncate(tensor_dict, len):
-      {key: value[:,:len].to(device) for key, value in tensor_dict.items()}
+      return {key: value[:,:len].to(device) for key, value in tensor_dict.items()}
     
     raw_prompt = "以下诗句是苏轼，又名苏东坡，题为《{}》：\n"
     def raw_process(title, poem):
