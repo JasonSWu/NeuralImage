@@ -128,7 +128,7 @@ def freezer_bloom(model, n_dont_freeze):
       layer.requires_grad = False
   return thawed_layers
 
-def main(num_epochs = 10, lr=0.00002):
+def main(num_epochs = 30, lr=0.00002):
     device = torch.device("cuda")
     
     model_name = "IDEA-CCNL/Wenzhong-GPT2-110M"
@@ -178,9 +178,12 @@ def main(num_epochs = 10, lr=0.00002):
     
     raw_data, chat_data = retrieve_data([raw_process, chat_process])
     
-    finetune(model, optimizer1, loss_fn, raw_data, num_epochs, bsz, device)
-    finetune(model, optimizer2, loss_fn, chat_data, num_epochs, bsz, device)
-    torch.save(model.state_dict(), "finetuned")
+    epoch_count = 0
+    while num_epochs > epoch_count:
+      finetune(model, optimizer1, loss_fn, raw_data, 10, bsz, device)
+      finetune(model, optimizer2, loss_fn, chat_data, 10, bsz, device)
+      epoch_count += 10
+      torch.save(model.state_dict(), f"finetuned{epoch_count}")
 
 if __name__ == "__main__":
     main(int(sys.argv[1]), float(sys.argv[2]))
