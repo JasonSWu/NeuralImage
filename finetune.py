@@ -149,7 +149,7 @@ def main(num_epochs = 10, lr=0.00002):
     def truncate(tensor_dict, len):
       {key: value[:,:len].to(device) for key, value in tensor_dict.items()}
     
-    raw_prompt = "以下诗句是苏轼，又名苏东坡，题为《{}》：\n{}"
+    raw_prompt = "以下诗句是苏轼，又名苏东坡，题为《{}》：\n"
     def raw_process(title, poem):
       tgt = tokenizer([poem], return_tensors="pt")
       src = tokenizer([raw_prompt.format(title)], return_tensors="pt")
