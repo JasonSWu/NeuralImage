@@ -128,7 +128,7 @@ def freezer_bloom(model, n_dont_freeze):
       layer.requires_grad = False
   return thawed_layers
 
-def main(num_epochs = 30, lr=0.00002, model_file = "None"):
+def main(num_epochs = 30, lr=0.00002, model_file = "None", optimizer_file1 = "None", optimizer_file2 = "None"):
     device = torch.device("cuda")
     
     model_name = "IDEA-CCNL/Wenzhong-GPT2-110M"
@@ -175,6 +175,8 @@ def main(num_epochs = 30, lr=0.00002, model_file = "None"):
 
     optimizer1 = torch.optim.SGD(thawed_params, lr=lr)
     optimizer2 = torch.optim.SGD(thawed_params, lr=lr)
+    optimizer1.load_state_dict(torch.load(optimizer_file1))
+    optimizer2.load_state_dict(torch.load(optimizer_file2))
 
     bsz = 8
     
@@ -191,7 +193,7 @@ def main(num_epochs = 30, lr=0.00002, model_file = "None"):
       torch.save(optimizer2.state_dict(), f"gpt2-optim2-{epoch_count}")
 
 if __name__ == "__main__":
-    main(int(sys.argv[1]), float(sys.argv[2]), sys.argv[3])
+    main(int(sys.argv[1]), float(sys.argv[2]), sys.argv[3], sys.argv[4], sys.argv[5])
 
 '''finetuning scheme:
   raw text:
