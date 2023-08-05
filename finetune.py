@@ -181,6 +181,7 @@ def main(num_epochs = 30, lr=0.00002, model_file = "None"):
     raw_data, chat_data = retrieve_data([raw_process, chat_process])
     
     epoch_count = 0 if model_file == "None" else int(model_file[-2:])
+    num_epochs += epoch_count
     while num_epochs > epoch_count:
       finetune(model, optimizer1, loss_fn, raw_data, 10, bsz, device)
       finetune(model, optimizer2, loss_fn, chat_data, 10, bsz, device)
