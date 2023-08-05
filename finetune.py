@@ -128,7 +128,7 @@ def freezer_bloom(model, n_dont_freeze):
       layer.requires_grad = False
   return thawed_layers
 
-def main(num_epochs = 30, lr=0.00002):
+def main(num_epochs = 30, lr=0.00002, model_file = "None"):
     device = torch.device("cuda")
     
     model_name = "IDEA-CCNL/Wenzhong-GPT2-110M"
@@ -137,6 +137,8 @@ def main(num_epochs = 30, lr=0.00002):
     tokenizer = GPT2Tokenizer.from_pretrained(model_name)
     model = GPT2LMHeadModel.from_pretrained(model_name).cuda()
     #model = model.quantize(8) only for GLM-6b
+    if model_file != None:
+      model.load_state_dict(torch.load(model_file))
     
     thawed_params = freezer_bloom(model, 4)
     model.train()
@@ -178,15 +180,17 @@ def main(num_epochs = 30, lr=0.00002):
     
     raw_data, chat_data = retrieve_data([raw_process, chat_process])
     
-    epoch_count = 0
+    epoch_count = 0 if model_file == "None" else int(model_file[-2:])
     while num_epochs > epoch_count:
       finetune(model, optimizer1, loss_fn, raw_data, 10, bsz, device)
       finetune(model, optimizer2, loss_fn, chat_data, 10, bsz, device)
       epoch_count += 10
-      torch.save(model.state_dict(), f"finetuned{epoch_count}")
+      torch.save(model.state_dict(), f"gpt2-{epoch_count}")
+      torch.save(optimizer1.state_dict(), f"gpt2-optim1-{epoch_count}")
+      torch.save(optimizer2.state_dict(), f"gpt2-optim2-{epoch_count}")
 
 if __name__ == "__main__":
-    main(int(sys.argv[1]), float(sys.argv[2]))
+    main(int(sys.argv[1]), float(sys.argv[2]), sys.argv[3])
 
 '''finetuning scheme:
   raw text:
