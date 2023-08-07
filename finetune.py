@@ -104,7 +104,7 @@ def freezer_glm(model, n_dont_freeze):
       layer.requires_grad = False
   return thawed_layers
 
-def freezer_bloom(model, n_dont_freeze):
+def freezer_bloom_or_gpt2(model, n_dont_freeze):
   thawed_layers = []
   bloom_model = None
   for name, layer in model.named_children():
@@ -131,16 +131,18 @@ def freezer_bloom(model, n_dont_freeze):
 def main(num_epochs = 30, lr=0.00002, model_file = "None", optimizer_file1 = "None", optimizer_file2 = "None"):
     device = torch.device("cuda")
     
-    model_name = "IDEA-CCNL/Wenzhong-GPT2-110M"
+    model_name = "bigscience/bloom-560m"
+    model_alias = "bloom"
 
-    #config = BloomConfig.from_pretrained(model_name)
-    tokenizer = GPT2Tokenizer.from_pretrained(model_name)
-    model = GPT2LMHeadModel.from_pretrained(model_name).cuda()
+    config = BloomConfig.from_pretrained(model_name)
+    tokenizer = BloomTokenizerFast.from_pretrained(model_name)
+    model = BloomForCausalLM.from_pretrained(model_name).cuda()
     #model = model.quantize(8) only for GLM-6b
-    if model_file != None:
+
+    if model_file != "None":
       model.load_state_dict(torch.load(model_file))
     
-    thawed_params = freezer_bloom(model, 4)
+    thawed_params = freezer_bloom_or_gpt2(model, 4)
     model.train()
 
     max_len = 1024
@@ -170,13 +172,15 @@ def main(num_epochs = 30, lr=0.00002, model_file = "None", optimizer_file1 = "No
       tgt = truncate(tgt, max_tgt_len)
       return src, tgt
     
-    #pad_id = 50256
-    loss_fn = torch.nn.CrossEntropyLoss()
+    pad_id = config.pad_token_id
+    loss_fn = torch.nn.CrossEntropyLoss(ignore_index=pad_id)
 
     optimizer1 = torch.optim.SGD(thawed_params, lr=lr)
     optimizer2 = torch.optim.SGD(thawed_params, lr=lr)
-    optimizer1.load_state_dict(torch.load(optimizer_file1))
-    optimizer2.load_state_dict(torch.load(optimizer_file2))
+    if optimizer_file1 != "None":
+      optimizer1.load_state_dict(torch.load(optimizer_file1))
+    if optimizer_file2 != "None":
+      optimizer2.load_state_dict(torch.load(optimizer_file2))
 
     bsz = 8
     
@@ -188,9 +192,9 @@ def main(num_epochs = 30, lr=0.00002, model_file = "None", optimizer_file1 = "No
       finetune(model, optimizer1, loss_fn, raw_data, 10, bsz, device)
       finetune(model, optimizer2, loss_fn, chat_data, 10, bsz, device)
       epoch_count += 10
-      torch.save(model.state_dict(), f"gpt2-{epoch_count}")
-      torch.save(optimizer1.state_dict(), f"gpt2-optim1-{epoch_count}")
-      torch.save(optimizer2.state_dict(), f"gpt2-optim2-{epoch_count}")
+      torch.save(model.state_dict(), f"{model_alias}-{epoch_count}")
+      torch.save(optimizer1.state_dict(), f"{model_alias}-optim1-{epoch_count}")
+      torch.save(optimizer2.state_dict(), f"{model_alias}-optim2-{epoch_count}")
 
 if __name__ == "__main__":
     main(int(sys.argv[1]), float(sys.argv[2]), sys.argv[3], sys.argv[4], sys.argv[5])
