@@ -32,6 +32,7 @@ def pooling_fn(a):
 
 def finetune(base_llm, optimizer, loss_fn, train_dataloader, num_epochs, bsz, teacher_force=True, device=torch.device("cuda")):
   optimizer = optimizer
+  torch.cuda.empty_cache()
   for epoch in range(1, num_epochs+1):
     total_loss = 0
     torch.cuda.empty_cache()
@@ -131,18 +132,21 @@ def freezer_bloom_or_gpt2(model, n_dont_freeze):
 def main(num_epochs = 30, lr=0.00002, model_file = "None", optimizer_file1 = "None", optimizer_file2 = "None"):
     device = torch.device("cuda")
     
-    model_name = "bigscience/bloom-560m"
-    model_alias = "bloom"
+    model_name = "THUDM/chatglm2-6b"
+    model_alias = "glm"
 
-    config = BloomConfig.from_pretrained(model_name)
-    tokenizer = BloomTokenizerFast.from_pretrained(model_name)
-    model = BloomForCausalLM.from_pretrained(model_name).cuda()
-    #model = model.quantize(8) only for GLM-6b
+    #config = BloomConfig.from_pretrained(model_name)
+    #tokenizer = BloomTokenizerFast.from_pretrained(model_name)
+    #model = BloomForCausalLM.from_pretrained(model_name).cuda()
+    config = AutoConfig.from_pretrained(model_name, trust_remote_code=True)
+    tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
+    model = AutoModel.from_pretrained(model_name, trust_remote_code=True).half().cuda()
+    #model = model.quantize(8) # only for GLM-6b
 
     if model_file != "None":
       model.load_state_dict(torch.load(model_file))
     
-    thawed_params = freezer_bloom_or_gpt2(model, 4)
+    thawed_params = freezer_glm(model, 5)
     model.train()
 
     max_len = 1024
@@ -182,7 +186,7 @@ def main(num_epochs = 30, lr=0.00002, model_file = "None", optimizer_file1 = "No
     if optimizer_file2 != "None":
       optimizer2.load_state_dict(torch.load(optimizer_file2))
 
-    bsz = 8
+    bsz = 8 #not batching right now
     
     raw_data, chat_data = retrieve_data([raw_process, chat_process])
     
