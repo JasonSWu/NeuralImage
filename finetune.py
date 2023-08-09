@@ -149,7 +149,7 @@ def main(num_epochs = 30, lr=0.00002, model_file = "None", optimizer_file1 = "No
     thawed_params = freezer_glm(model, 5)
     model.train()
 
-    max_len = 1024
+    max_len = 1536
 
     def concat(src, tgt):
       return {key: torch.concat((src[key], tgt[key]), dim=1) for key in src.keys()}
