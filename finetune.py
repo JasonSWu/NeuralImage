@@ -141,7 +141,7 @@ def main(num_epochs = 30, lr=0.00002, model_file = "None", optimizer_file1 = "No
     config = AutoConfig.from_pretrained(model_name, trust_remote_code=True)
     tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True)
     model = AutoModel.from_pretrained(model_name, trust_remote_code=True).half().cuda()
-    #model = model.quantize(8) # only for GLM-6b
+    model = model.quantize(8) # only for GLM-6b
 
     if model_file != "None":
       model.load_state_dict(torch.load(model_file))
