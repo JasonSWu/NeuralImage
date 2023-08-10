@@ -1,11 +1,10 @@
 from bs4 import BeautifulSoup
 import requests
 import re
-import pickle
 
 def remove_numbers_in_brackets(input_string):
     # Define a regular expression pattern to match numbers within brackets
-    pattern = r'\[\d+\]| ' #The space after "|" is a special invisible unicode(maybe utf-8 idk)character
+    pattern = r'\[\d+\]| ' #The space after "|" is a special invisible unicode (maybe utf-8 idk) character
     
     # Use the sub() function from re module to replace matches with an empty string
     output_string = re.sub(pattern, '', input_string)
