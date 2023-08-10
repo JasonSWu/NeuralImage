@@ -193,9 +193,9 @@ def main(num_epochs = 30, lr=0.00002, model_file = "None", optimizer_file1 = "No
     epoch_count = 0 if model_file == "None" else int(model_file[-2:])
     num_epochs += epoch_count
     while num_epochs > epoch_count:
-      finetune(model, optimizer1, loss_fn, raw_data, 4, bsz, device)
-      finetune(model, optimizer2, loss_fn, chat_data, 4, bsz, device)
-      epoch_count += 4
+      finetune(model, optimizer1, loss_fn, raw_data, 5, bsz, device)
+      finetune(model, optimizer2, loss_fn, chat_data, 5, bsz, device)
+      epoch_count += 5
       torch.save(model.state_dict(), f"{model_alias}-{epoch_count}")
       torch.save(optimizer1.state_dict(), f"{model_alias}-optim1-{epoch_count}")
       torch.save(optimizer2.state_dict(), f"{model_alias}-optim2-{epoch_count}")
