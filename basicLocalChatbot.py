@@ -25,7 +25,7 @@ def main(model_choice, model_file):
         def chat_fn(input_, history):
             prompt = construct_prompt(input_, history)
             print(prompt)
-            response = tokenizer.decode(model.generate(**(tokenizer(prompt, return_tensors="pt").to(device)), max_new_tokens=100)[0])
+            response = tokenizer.decode(model.generate(**(tokenizer(prompt, return_tensors="pt").to(device))[0], max_new_tokens=10))
             response = response[len(prompt):] # Output includes the original prompt, truncate it
             history.append((input_, response))
             return response, history
@@ -37,7 +37,10 @@ def main(model_choice, model_file):
         def chat_fn(input_, history):
             prompt = construct_prompt(input_, history)
             print(prompt)
-            response = tokenizer.decode(model.generate(**(tokenizer(prompt, return_tensors="pt").to(device)), max_new_tokens=100)[0])
+            response = tokenizer.decode(
+                model.generate(
+                    **(tokenizer(prompt, return_tensors="pt").to(device))[0],
+                    max_new_tokens=10))
             response = response[len(prompt):] # Output includes the original prompt, truncate it
             history.append((input_, response))
             return response, history
