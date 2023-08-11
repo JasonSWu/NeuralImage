@@ -14,7 +14,7 @@ def main(model_choice, model_file):
         for i, (past_input, response) in enumerate(history):
             prompt += (person1 + past_input + "\n")
             prompt += (person2 + response + "\n")
-        prompt += (person1 + input_)
+        prompt += (person1 + input_ + "\n" + person2)
         return prompt
     
     if model_choice == "glm":
@@ -58,6 +58,6 @@ def main(model_choice, model_file):
         user_input = input()
 
 if __name__ == "__main__":
-    print("Input model type and model file. If no model file, put None")
+    print("Input model type and model file. If no model file, put None. WARNING: Bloom and GPT2 do not work well. Only GLM.")
     main(sys.argv[1], sys.argv[2])
     
