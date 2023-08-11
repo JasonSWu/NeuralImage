@@ -12,9 +12,9 @@ def main(model_choice, model_file):
         person1 = "第一个人："
         person2 = "第二个人："
         for i, (past_input, response) in enumerate(history):
-            prompt.append(person1 + past_input + "\n")
-            prompt.append(person2 + response + "\n")
-        prompt.append(person1 + input_)
+            prompt += (person1 + past_input + "\n")
+            prompt += (person2 + response + "\n")
+        prompt += (person1 + input_)
         return prompt
     
     if model_choice == "glm":
