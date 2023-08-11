@@ -15,6 +15,10 @@ https://huggingface.co/docs/transformers/main/en/main_classes/text_generation#tr
 You can check if the model has generate() implemented by running model.can_generate(). The generate() function
 essentially executes the text completion loop for the user.
 
+-------basicLocalChatbot.py--------
+This file has a script for a very basic local chatbot implementation. The bloom and gpt2 options don't work very well.
+Refer to this for an example of how to generate responses.
+
 ----------EncoderDecoder------------
 The folder contains the files for a failed attempt at constructing an encoder-decoder network using pretrained
 LLMs as the decoder. It quickly became clear that such an architecture is unviable for these purposes. Thus,
