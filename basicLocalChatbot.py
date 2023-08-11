@@ -24,6 +24,7 @@ def main(model_choice, model_file):
         tokenizer = GPT2Tokenizer.from_pretrained("IDEA-CCNL/Wenzhong-GPT2-110M")
         def chat_fn(input_, history):
             prompt = construct_prompt(input_, history)
+            print(prompt)
             response = tokenizer.decode(model.generate(**(tokenizer(prompt, return_tensors="pt").to(device)), max_new_tokens=100)[0])
             response = response[len(prompt):] # Output includes the original prompt, truncate it
             history.append((input_, response))
@@ -35,6 +36,7 @@ def main(model_choice, model_file):
         tokenizer = BloomTokenizerFast.from_pretrained("bigscience/bloom-560m")
         def chat_fn(input_, history):
             prompt = construct_prompt(input_, history)
+            print(prompt)
             response = tokenizer.decode(model.generate(**(tokenizer(prompt, return_tensors="pt").to(device)), max_new_tokens=100)[0])
             response = response[len(prompt):] # Output includes the original prompt, truncate it
             history.append((input_, response))
