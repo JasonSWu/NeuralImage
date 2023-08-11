@@ -8,7 +8,14 @@ def main(model_choice, model_file):
     device = torch.device("cuda")
     prompt_constructor = AutoTokenizer.from_pretrained("THUDM/chatglm2-6b", trust_remote_code=True)
     def construct_prompt(input_, history):
-        return prompt_constructor.build_prompt(input_, history)
+        prompt = "以下是两个人的对话：\n"
+        person1 = "第一个人："
+        person2 = "第二个人："
+        for i, (past_input, response) in enumerate(history):
+            prompt.append(person1 + past_input + "\n")
+            prompt.append(person2 + response + "\n")
+        prompt.append(person1 + input_)
+        return prompt
     
     if model_choice == "glm":
         model = AutoModel.from_pretrained("THUDM/chatglm2-6b", trust_remote_code=True).quantize(8).cuda()
@@ -24,10 +31,7 @@ def main(model_choice, model_file):
         tokenizer = GPT2Tokenizer.from_pretrained("IDEA-CCNL/Wenzhong-GPT2-110M")
         def chat_fn(input_, history):
             prompt = construct_prompt(input_, history)
-            print(model.generate(
-                    **(tokenizer(prompt, return_tensors="pt").to(device)),
-                    max_new_tokens=10)[0])
-            response = tokenizer.decode(model.generate(**(tokenizer(prompt, return_tensors="pt").to(device)), max_new_tokens=10)[0])
+            response = tokenizer.decode(model.generate(**(tokenizer(prompt, return_tensors="pt").to(device)), max_new_tokens=50)[0])
             response = response[len(prompt):] # Output includes the original prompt, truncate it
             history.append((input_, response))
             return response, history
@@ -38,11 +42,7 @@ def main(model_choice, model_file):
         tokenizer = BloomTokenizerFast.from_pretrained("bigscience/bloom-560m")
         def chat_fn(input_, history):
             prompt = construct_prompt(input_, history)
-            print(prompt)
-            response = tokenizer.decode(
-                model.generate(
-                    **(tokenizer(prompt, return_tensors="pt").to(device)),
-                    max_new_tokens=10)[0])
+            response = tokenizer.decode(model.generate(**(tokenizer(prompt, return_tensors="pt").to(device)), max_new_tokens=50)[0])
             response = response[len(prompt):] # Output includes the original prompt, truncate it
             history.append((input_, response))
             return response, history
