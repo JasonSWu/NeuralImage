@@ -1,4 +1,20 @@
 # NeuralImage
+----------General Info-------------
+The models that have been finetuned are 
+https://huggingface.co/IDEA-CCNL/Wenzhong-GPT2-110M
+https://huggingface.co/THUDM/chatglm2-6b
+https://huggingface.co/bigscience/bloom-560m
+Go to huggingface to check the documentation of some of these. When loading in the finetuned weight for the ChatGLM
+model, you need to first load the model from huggingface, quantize it with model=model.quantize(8), then load in
+the state dictionary. The ChatGLM model has a convenient method "chat" which is used in an example in its
+huggingface webpage. For more on the ChatGLM functionality see
+https://huggingface.co/THUDM/chatglm2-6b/blob/main/modeling_chatglm.py
+
+Some autoregressive models from HuggingFace implement a generate function describe here:
+https://huggingface.co/docs/transformers/main/en/main_classes/text_generation#transformers.GenerationMixin
+You can check if the model has generate() implemented by running model.can_generate(). The generate() function
+essentially executes the text completion loop for the user.
+
 ----------EncoderDecoder------------
 The folder contains the files for a failed attempt at constructing an encoder-decoder network using pretrained
 LLMs as the decoder. It quickly became clear that such an architecture is unviable for these purposes. Thus,
@@ -70,3 +86,7 @@ Improve chatbot memory: Currently, the chatbot is implemented with LangChain. It
 for past input-response pairs that have the highest similarity. A few things that can be experimented with are using
 a different vectorstore (e.g. Redis), storing documents in a different manner (maybe grouped according to topic?), the
 number of documents queried, and where/how the results will fit into the prompt.
+
+Implement temperature: For the models that have been saved locally after finetuning, it may be necessary to manually
+implement temperature. Temperature is a value from 0 to 1 that essentially controls the creativity or randomness
+of the model. This is important for creating a high quality conversational bot.

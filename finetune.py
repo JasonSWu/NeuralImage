@@ -1,7 +1,6 @@
 import torch
-import torch.nn as nn
 from tqdm import tqdm
-from transformers import AutoConfig, AutoTokenizer, AutoModelForCausalLM, AutoModel
+from transformers import AutoConfig, AutoTokenizer, AutoModel
 from transformers import BloomForCausalLM, BloomTokenizerFast, BloomConfig
 from transformers import GPT2LMHeadModel, GPT2Tokenizer
 from bs4 import BeautifulSoup

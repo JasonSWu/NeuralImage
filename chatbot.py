@@ -66,7 +66,6 @@ retriever = vectorstore.as_retriever(search_kwargs={"k": 2})
 
 #llm=OpenAI(model_name="text-davinci-003", temperature=0.7, openai_api_key=API_KEY)
 chat = ChatOpenAI(openai_api_key=API_KEY)
-llm = lambda q: chat.predict(q)
 
 qa = ConversationalRetrievalChain.from_llm(
     llm=chat,
